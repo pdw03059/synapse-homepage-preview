@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stockline — Inventory</title>
+<!-- SYNAPSE 예시(업무 프로그램): 재고 관리 데스크톱 앱 — 창 프레임 · 사이드바 · 필터 · 표 · 상세 패널. 가상 데이터, 외부 자원 없음. -->
+<style>
+@font-face{font-family:"Pretendard";font-weight:400;src:url(../fonts/Pretendard-Regular.subset.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:500;src:url(../fonts/Pretendard-Medium.subset.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:600;src:url(../fonts/Pretendard-SemiBold.subset.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:700;src:url(../fonts/Pretendard-Bold.subset.woff2) format("woff2")}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--tx:#16181d;--t2:#4b5160;--mu:#868c99;--ln:#eceef2;--ln2:#e1e4ea;--sb:#f6f7f9;--ac:#2f6bff;--acs:#eaf0ff;--ok:#1a9b63;--oks:#e5f5ed;--wr:#b86e00;--wrs:#fdf1de;--bd:#d6343f;--bds:#fde9ea;
+  --f:"Pretendard",-apple-system,"SF Pro Text","Segoe UI",system-ui,sans-serif;--m:"SF Mono",ui-monospace,Menlo,Consolas,monospace}
+html,body{font:13px/1.45 var(--f);color:var(--tx);-webkit-font-smoothing:antialiased;background:linear-gradient(160deg,#dfe3ea,#c9cfda);min-height:100vh;overflow-x:clip}
+button,input{font:inherit;color:inherit}
+.win{margin:28px auto;width:min(1360px,calc(100% - 56px));height:calc(100vh - 56px);min-height:760px;background:#fff;border-radius:12px;overflow:hidden;display:grid;grid-template-rows:44px 1fr;
+  box-shadow:0 0 0 .5px rgba(0,0,0,.2),0 30px 80px -20px rgba(20,30,60,.35),0 10px 24px -10px rgba(20,30,60,.2)}
+.tb{display:flex;align-items:center;gap:8px;padding:0 14px;background:linear-gradient(#f7f8fa,#eff1f4);border-bottom:1px solid var(--ln2);position:relative}
+.tb i{width:12px;height:12px;border-radius:50%;background:#ff5f57;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.15)}.tb i:nth-child(2){background:#febc2e}.tb i:nth-child(3){background:#28c840}
+.tb b{position:absolute;left:50%;transform:translateX(-50%);font-weight:600;font-size:13px;color:#3a3f4a}
+.body{display:grid;grid-template-columns:224px minmax(0,1fr) 340px;min-height:0}
+/* 사이드바 */
+aside{background:var(--sb);border-right:1px solid var(--ln);padding:14px 10px;overflow:auto}
+.ws{display:flex;align-items:center;gap:10px;padding:6px 8px 14px}
+.ws span{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#2f6bff,#6a4bff);color:#fff;display:grid;place-items:center;font-weight:700}
+.ws b{display:block;font-size:13.5px}.ws small{color:var(--mu);font-size:11.5px}
+.nv a{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:7px;color:var(--t2);text-decoration:none;font-weight:500}
+.nv a.on{background:#fff;color:var(--tx);box-shadow:0 1px 2px rgba(0,0,0,.06),0 0 0 1px var(--ln)}
+.nv a em{margin-left:auto;font-style:normal;font-size:11.5px;color:var(--mu)}
+.nv svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.gl{font-size:11px;font-weight:600;color:var(--mu);letter-spacing:.04em;text-transform:uppercase;padding:18px 10px 6px}
+.wh a{display:flex;align-items:center;gap:10px;padding:6px 10px;color:var(--t2);text-decoration:none;border-radius:7px}
+.wh a i{width:8px;height:8px;border-radius:3px}
+.wh a em{margin-left:auto;font-style:normal;font-size:11.5px;color:var(--mu);font-family:var(--m)}
+/* 가운데 */
+.mid{display:flex;flex-direction:column;min-width:0;min-height:0}
+.hdr{display:flex;align-items:center;gap:12px;padding:18px 22px 12px}
+.hdr h1{font-size:20px;font-weight:700;letter-spacing:-.02em}
+.hdr .sp{flex:1}
+.srch{display:flex;align-items:center;gap:8px;height:32px;width:240px;padding:0 10px;border:1px solid var(--ln2);border-radius:8px;color:var(--mu)}
+.srch input{border:0;outline:0;flex:1;min-width:0;background:none;color:var(--tx)}
+.b{height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--ln2);background:#fff;font-weight:500;cursor:pointer}
+.b.p{background:var(--tx);border-color:var(--tx);color:#fff}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 22px 14px}
+.stats div{border:1px solid var(--ln);border-radius:10px;padding:10px 12px}
+.stats small{color:var(--mu);font-size:11.5px}.stats b{display:block;font-size:18px;font-weight:600;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.stats b em{font-style:normal;font-size:11.5px;font-weight:500;margin-left:6px}
+.chips{display:flex;gap:6px;padding:0 22px 10px;align-items:center}
+.chip{height:28px;padding:0 11px;border-radius:99px;border:1px solid var(--ln2);background:#fff;font-size:12.5px;font-weight:500;color:var(--t2);cursor:pointer}
+.chip.on{background:var(--acs);border-color:#c9d8ff;color:var(--ac)}
+.chips .sp{flex:1}.chips small{color:var(--mu)}
+.tw{flex:1;overflow:auto;border-top:1px solid var(--ln)}
+table{width:100%;border-collapse:collapse}
+th{position:sticky;top:0;background:#fbfbfc;text-align:left;font-weight:500;color:var(--mu);font-size:11.5px;padding:8px 12px;border-bottom:1px solid var(--ln);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--ln);white-space:nowrap;font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{padding-left:22px}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:#fafbfc}
+tbody tr.on{background:#f3f6ff}
+.it{display:flex;align-items:center;gap:10px}
+.th{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff;flex:none}
+.it b{font-weight:500;display:block}.it small{color:var(--mu);font:11.5px var(--m)}
+.lv{display:flex;align-items:center;gap:8px}
+.lv span{width:64px;height:5px;border-radius:9px;background:#eef0f4;overflow:hidden}.lv span i{display:block;height:100%;border-radius:9px}
+.bg{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:3px 8px;border-radius:99px}
+.bg::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.g-ok{background:var(--oks);color:var(--ok)}.g-lo{background:var(--wrs);color:var(--wr)}.g-out{background:var(--bds);color:var(--bd)}.g-in{background:var(--acs);color:var(--ac)}
+td.r{text-align:right}th.r{text-align:right}
+/* 오른쪽 상세 */
+.det{border-left:1px solid var(--ln);overflow:auto;padding:18px 20px}
+.ph{height:150px;border-radius:12px;overflow:hidden;background:#f1f2f5;position:relative}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph span{position:absolute;left:10px;bottom:10px}
+.det h2{font-size:17px;font-weight:700;margin-top:14px;letter-spacing:-.01em}
+.det .sku{color:var(--mu);font:12px var(--m);margin-top:2px}
+.kv{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:14px 0}
+.kv div{background:var(--sb);border-radius:9px;padding:9px 10px}.kv small{color:var(--mu);font-size:11px}.kv b{display:block;font-size:15px;font-weight:600}
+.sec{font-size:11.5px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;margin:16px 0 8px}
+.whb{display:grid;grid-template-columns:80px 1fr 40px;gap:8px;align-items:center;margin-bottom:7px;font-size:12.5px}
+.whb span{height:7px;border-radius:9px;background:#eef0f4;overflow:hidden}.whb span i{display:block;height:100%;background:var(--ac);border-radius:9px}
+.whb em{font-style:normal;text-align:right;font-variant-numeric:tabular-nums;color:var(--t2)}
+.det svg{display:block;width:100%;height:84px}
+.act{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;font-size:12.5px;padding:8px 0;border-bottom:1px solid var(--ln)}
+.act i{width:8px;height:8px;border-radius:50%;margin-top:5px}.act small{color:var(--mu);text-align:right}
+.da{display:flex;gap:8px;margin-top:16px}.da .b{flex:1;height:36px}
+@media (max-width:1180px){.body{grid-template-columns:200px minmax(0,1fr)}.det{display:none}}
+@media (max-width:760px){.win{margin:0;width:100%;height:auto;min-height:100vh;border-radius:0}.body{grid-template-columns:1fr}aside{display:none}
+  .hdr{flex-wrap:wrap}.srch{width:100%;order:3}.stats{grid-template-columns:1fr 1fr}.chips{overflow-x:auto;scrollbar-width:none}.chip{flex:none;white-space:nowrap}.chips small{display:none}
+  td,th{padding:9px 8px}th:first-child,td:first-child{padding-left:16px}.lv span{display:none}.it small{font-size:10.5px}
+  .det{display:block;border-left:0;border-top:1px solid var(--ln)}.tw{overflow:visible}
+  th:nth-child(2),td:nth-child(2),th:nth-child(4),td:nth-child(4),th:nth-child(6),td:nth-child(6){display:none}}
+</style></head>
+<body>
+<div class="win">
+  <div class="tb"><i></i><i></i><i></i><b>Stockline — Inventory</b></div>
+  <div class="body">
+    <aside>
+      <div class="ws"><span>H</span><div><b>Harbor Supply Co.</b><small>3 warehouses · 1,284 SKUs</small></div></div>
+      <nav class="nv">
+        <a href="#"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Overview</a>
+        <a href="#" class="on"><svg viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8"/></svg>Inventory<em>1,284</em></a>
+        <a href="#"><svg viewBox="0 0 24 24"><path d="M6 2l-3 4v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0"/></svg>Orders<em>46</em></a>
+        <a href="#"><svg viewBox="0 0 24 24"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Shipments<em>12</em></a>
+        <a href="#"><svg viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M16 3.1a4 4 0 0 1 0 7.8M21 21v-2a4 4 0 0 0-3-3.9"/></svg>Suppliers</a>
+        <a href="#"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 15l4-4 4 4 5-6"/></svg>Reports</a>
+      </nav>
+      <div class="gl">Warehouses</div>
+      <div class="wh"><a href="#"><i style="background:#2f6bff"></i>Incheon DC<em>612</em></a><a href="#"><i style="background:#9a5cff"></i>Busan Port<em>418</em></a><a href="#"><i style="background:#1a9b63"></i>Daejeon Hub<em>254</em></a></div>
+      <div class="gl">Saved views</div>
+      <div class="wh"><a href="#"><i style="background:#b86e00"></i>Reorder this week</a><a href="#"><i style="background:#d6343f"></i>Stockouts</a></div>
+    </aside>
+    <section class="mid">
+      <div class="hdr"><h1>Inventory</h1><span class="sp"></span>
+        <label class="srch"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="q" placeholder="Search items, SKUs…"></label>
+        <button class="b">Import</button><button class="b p">New item</button></div>
+      <div class="stats"><div><small>Stock value</small><b>$2.84M<em style="color:var(--ok)">+4.1%</em></b></div><div><small>Units on hand</small><b>186,420</b></div>
+        <div><small>Low stock</small><b>38<em style="color:var(--wr)">needs reorder</em></b></div><div><small>Incoming</small><b>12 POs<em style="color:var(--mu)">this week</em></b></div></div>
+      <div class="chips" id="chips"><button class="chip on" data-f="all">All items</button><button class="chip" data-f="lo">Low stock</button><button class="chip" data-f="out">Out of stock</button><button class="chip" data-f="in">Incoming</button><span class="sp"></span><small id="cnt"></small></div>
+      <div class="tw"><table><thead><tr><th>Item</th><th>Warehouse</th><th>On hand</th><th class="r">Reorder at</th><th>Status</th><th class="r">Value</th></tr></thead><tbody id="tb"></tbody></table></div>
+    </section>
+    <aside class="det" id="det" style="background:#fff;padding:18px 20px"></aside>
+  </div>
+</div>
+<script>
+const $=s=>document.querySelector(s),nf=n=>n.toLocaleString("en-US");
+const C=["#2f6bff","#9a5cff","#1a9b63","#e0662b","#d6343f","#0f8fa8","#5b6170"];
+const D=[["Halo Watch S2","HW-S2-WHT","Wearables","Incheon DC",1840,600,"ok",189,0,"../styles/img/pm-watch.jpg"],
+["Arc Desk Lamp","AL-200-BLK","Home office","Busan Port",212,250,"lo",64,1],
+["Contour Keyboard","CK-87-GRY","Peripherals","Incheon DC",0,180,"out",119,2],
+["Drift Earbuds Pro","DE-PRO-WHT","Audio","Daejeon Hub",3260,800,"ok",149,3],
+["Lumen Monitor 27","LM-27-4K","Displays","Incheon DC",96,120,"lo",429,4],
+["Pace Smart Scale","PS-01-WHT","Wearables","Busan Port",1104,400,"in",59,5],
+["Fold Laptop Stand","FS-AL-SLV","Home office","Daejeon Hub",2481,500,"ok",45,6],
+["Echo Mini Speaker","EM-02-SND","Audio","Incheon DC",37,200,"lo",79,0],
+["Glide Mouse","GM-3-BLK","Peripherals","Busan Port",4120,900,"ok",39,1],
+["Nova Webcam 4K","NW-4K-BLK","Peripherals","Daejeon Hub",0,150,"out",129,2],
+["Orbit Charging Pad","OC-15-WHT","Accessories","Incheon DC",1520,600,"in",29,3],
+["Tide USB-C Hub","TH-7-GRY","Accessories","Busan Port",880,400,"ok",49,4]];
+const ST={ok:["In stock","g-ok"],lo:["Low stock","g-lo"],out:["Out of stock","g-out"],in:["Incoming","g-in"]};
+let F="all",sel=0;
+function rows(){const q=$("#q").value.trim().toLowerCase(),L=D.map((d,i)=>[d,i]).filter(([d])=>(F==="all"||d[6]===F)&&(!q||(d[0]+d[1]).toLowerCase().includes(q)));
+ $("#cnt").textContent=`${L.length} of 1,284 items`;
+ $("#tb").innerHTML=L.map(([d,i])=>{const pct=Math.min(100,d[4]/(d[5]*3)*100),col=d[6]==="out"?"var(--bd)":d[6]==="lo"?"var(--wr)":"var(--ok)";
+  return `<tr data-i="${i}" class="${i===sel?"on":""}"><td><div class="it"><span class="th" style="background:${C[d[8]]}">${d[0].split(" ").map(w=>w[0]).join("").slice(0,2)}</span><div><b>${d[0]}</b><small>${d[1]} · ${d[2]}</small></div></div></td><td>${d[3]}</td>
+  <td><div class="lv"><span><i style="width:${pct}%;background:${col}"></i></span>${nf(d[4])}</div></td><td class="r">${nf(d[5])}</td><td><span class="bg ${ST[d[6]][1]}">${ST[d[6]][0]}</span></td><td class="r">$${nf(d[4]*d[7])}</td></tr>`}).join("");
+ document.querySelectorAll("#tb tr").forEach(r=>r.onclick=()=>{sel=+r.dataset.i;rows();detail()})}
+function detail(){const d=D[sel],w=[Math.round(d[4]*.52),Math.round(d[4]*.31),d[4]-Math.round(d[4]*.52)-Math.round(d[4]*.31)],mx=Math.max(1,...w);
+ const pts=[];let v=d[4]+600;for(let i=0;i<30;i++){v+=Math.round((Math.sin(i*1.7+sel)*.5-.15)*120);pts.push(Math.max(0,v))}pts[29]=d[4];
+ const mn=Math.min(...pts),mxp=Math.max(...pts)+1,p=pts.map((y,i)=>`${(i/29*300).toFixed(1)} ${(80-(y-mn)/(mxp-mn||1)*70).toFixed(1)}`);
+ $("#det").innerHTML=`<div class="ph">${d[9]?`<img src="${d[9]}" alt="">`:`<div style="height:100%;display:grid;place-items:center;background:linear-gradient(135deg,${C[d[8]]}22,${C[d[8]]}55);font-size:42px;font-weight:700;color:${C[d[8]]}">${d[0].split(" ").map(x=>x[0]).join("").slice(0,2)}</div>`}<span class="bg ${ST[d[6]][1]}">${ST[d[6]][0]}</span></div>
+ <h2>${d[0]}</h2><div class="sku">${d[1]} · ${d[2]}</div>
+ <div class="kv"><div><small>On hand</small><b>${nf(d[4])}</b></div><div><small>Unit cost</small><b>$${d[7]}</b></div><div><small>Days left</small><b>${d[4]?Math.round(d[4]/(d[5]/14)):0}</b></div></div>
+ <div class="sec">By warehouse</div>${["Incheon DC","Busan Port","Daejeon Hub"].map((n,i)=>`<div class="whb">${n}<span><i style="width:${w[i]/mx*100}%"></i></span><em>${nf(w[i])}</em></div>`).join("")}
+ <div class="sec">Last 30 days</div><svg viewBox="0 0 300 84" preserveAspectRatio="none"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#2f6bff" stop-opacity=".22"/><stop offset="1" stop-color="#2f6bff" stop-opacity="0"/></linearGradient></defs><path d="M${p.join(" L")} L300 84 L0 84Z" fill="url(#g)"/><path d="M${p.join(" L")}" fill="none" stroke="#2f6bff" stroke-width="1.8"/></svg>
+ <div class="sec">Activity</div>
+ <div class="act"><i style="background:var(--ok)"></i><span>Received PO-1182 · +600</span><small>Nov 11</small></div>
+ <div class="act"><i style="background:var(--ac)"></i><span>Shipped 42 orders · −218</span><small>Nov 12</small></div>
+ <div class="act"><i style="background:var(--wr)"></i><span>Cycle count adjusted · −3</span><small>Nov 13</small></div>
+ <div class="da"><button class="b">Transfer</button><button class="b p">Create PO</button></div>`}
+document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{F=c.dataset.f;document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("on",x===c));rows()});
+$("#q").oninput=rows;rows();detail();
+</script>
+</body></html>

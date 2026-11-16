@@ -312,3 +312,28 @@ body { font-weight: 400; letter-spacing: -.005em; }
   .kd-win, .kd-tab { height: auto; width: 100%; }
 }
 .finale .show-cap, .finale .shelf-note { max-width: none; }
+
+/* ── 휴대폰(세로 화면): 영상을 가운데만 잘라 쓰지 않고, 화면 폭의 1.9배 크기 16:9 상자로 띄워 PC와 같은 그림이 보이게 한다 ── */
+@media (max-aspect-ratio: 4/5) {
+  .stage video[data-k="morph"], .stage video[data-k="sphere"], .stage video[data-k="tunnel"] {
+    inset: auto; left: 50%; top: 44%; width: 190vw; height: 106.875vw; margin: -53.44vw 0 0 -95vw;
+    -webkit-mask-image: radial-gradient(closest-side, #000 60%, transparent 100%); mask-image: radial-gradient(closest-side, #000 60%, transparent 100%); }
+  .stage video[data-k="morph"] { transform-origin: 50% 50%; }
+}
+@media (max-width: 820px) {
+  .copy.ll { left: var(--pad); right: var(--pad); width: auto; top: auto; bottom: calc(7vh + env(safe-area-inset-bottom, 0px)); display: block; }
+  .copy.ll h2 { font-size: 1.55rem; } .copy.ll p { font-size: .95rem; max-width: none; }
+  .copy.center { padding-top: 13vh; } .copy.center h1 { font-size: 1.85rem; } .copy.center .row { margin-top: 1.2em; }
+  .sidescrim { background: linear-gradient(0deg, #000 0%, rgba(0,0,0,.82) 26%, rgba(0,0,0,0) 48%); }
+  .finale { place-content: start center; padding-top: 70px; padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+  .finale .ask { margin-top: .9em; padding: 6px; } .finale .ask input { padding: 10px 14px; font-size: 16px; } .finale .ask button { padding: 11px; }
+  .show-tabs button { padding: 6px 12px; font-size: .82rem; }
+  .show-stage { height: 31vh; margin-top: 12px; } .show-cap { font-size: .82rem; margin-top: 10px; }
+  .show-cap b { display: block; margin: 0 0 2px; }
+  .kd-win, .kd-tab { height: auto; width: 100%; max-height: 100%; }
+  .scrollhint { bottom: calc(18px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (max-width: 820px) {
+  .show { width: 100%; } .show-tabs { max-width: 100%; } .show-tabs button { padding: 6px 10px; }
+  .kd-win img, .kd-tab img { flex: none; height: auto; aspect-ratio: 16 / 10; }
+}

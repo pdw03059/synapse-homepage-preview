@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MAZKION Console — Unified Log &amp; SIEM</title>
+<!-- SYNAPSE 예시(보안 · 관제 솔루션): MAZKION 통합 로그 · SIEM 콘솔 예상도. 데이터는 모두 가상(문서용 IP 대역 · 가상 호스트). 외부 자원 없음. -->
+<style>
+@font-face{font-family:"Pretendard";font-weight:400;src:url(../fonts/Pretendard-Regular.subset.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:500;src:url(../fonts/Pretendard-Medium.subset.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:600;src:url(../fonts/Pretendard-SemiBold.subset.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:700;src:url(../fonts/Pretendard-Bold.subset.woff2) format("woff2")}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#07090d;--p1:#0d1117;--p2:#121821;--ln:rgba(148,163,184,.10);--ln2:rgba(148,163,184,.18);--tx:#e6edf5;--t2:#a7b3c2;--mu:#6d7a8b;
+  --ac:#6e8bff;--ac2:#9a7bff;--ok:#2fd29b;--crit:#ff4d61;--high:#ff8b3d;--med:#f2c94c;--low:#4fb6ff;
+  --f:"Pretendard",-apple-system,"SF Pro Text","Segoe UI",Inter,system-ui,sans-serif;--m:"SF Mono","JetBrains Mono",ui-monospace,Menlo,Consolas,"Liberation Mono",monospace}
+html,body{background:var(--bg);color:var(--tx);font:13px/1.45 var(--f);-webkit-font-smoothing:antialiased;overflow-x:clip}
+button,input{font:inherit;color:inherit}
+.app{display:grid;grid-template-columns:60px 1fr;min-height:100vh}
+/* 왼쪽 레일 */
+.rail{border-right:1px solid var(--ln);display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 0;background:#090c11}
+.mk{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(140deg,#6e8bff,#9a7bff);margin-bottom:14px;box-shadow:0 6px 18px -6px rgba(110,139,255,.6)}
+.rail a{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;color:var(--mu)}
+.rail a.on{background:rgba(110,139,255,.14);color:#c9d4ff}
+.rail a:hover{color:var(--tx)}
+.rail svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.rail .sp{flex:1}
+/* 위쪽 */
+.top{height:56px;display:flex;align-items:center;gap:14px;padding:0 22px;border-bottom:1px solid var(--ln);background:rgba(13,17,23,.6)}
+.brand{font-weight:700;letter-spacing:.16em;font-size:13.5px}
+.brand small{display:block;font-weight:500;letter-spacing:.02em;color:var(--mu);font-size:11px;margin-top:-1px}
+.crumb{color:var(--mu);font-size:12.5px;padding-left:14px;border-left:1px solid var(--ln2)}
+.crumb b{color:var(--t2);font-weight:500}
+.top .sp{flex:1}
+.pill{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border:1px solid var(--ln2);border-radius:8px;color:var(--t2);font-size:12px;background:var(--p1)}
+.live{color:var(--ok);border-color:rgba(47,210,155,.3)}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(47,210,155,.6);animation:pulse 1.8s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 7px rgba(47,210,155,0)}100%{box-shadow:0 0 0 0 rgba(47,210,155,0)}}
+.av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#334155,#1e293b);display:grid;place-items:center;font-size:11px;font-weight:600;color:#cbd5e1}
+main{padding:18px 22px 26px;display:grid;gap:14px;min-width:0}
+/* 지표 */
+.kpis{display:grid;grid-template-columns:1.5fr repeat(4,1fr);gap:12px}
+.card{background:linear-gradient(180deg,var(--p2),var(--p1));border:1px solid var(--ln);border-radius:12px;min-width:0}
+.kpi{padding:14px 16px;position:relative;overflow:hidden}
+.kpi small{color:var(--mu);font-size:11.5px;letter-spacing:.02em}
+.kpi b{display:block;font:600 24px/1.2 var(--f);letter-spacing:-.02em;margin-top:6px;font-variant-numeric:tabular-nums}
+.kpi b em{font-style:normal;font-size:13px;color:var(--mu);font-weight:500;margin-left:3px}
+.kpi .d{font-size:11.5px;margin-top:2px;color:var(--mu)}
+.up{color:var(--ok)!important}.dn{color:var(--crit)!important}
+.kpi svg.sp{position:absolute;right:14px;top:14px;width:40%;height:40px}
+.kpi:first-child .d{max-width:58%}
+.bar{height:4px;border-radius:9px;background:rgba(148,163,184,.12);margin-top:10px;overflow:hidden}.bar i{display:block;height:100%;border-radius:9px;background:var(--ok)}
+/* 본문 격자 */
+.grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:14px}
+.hd{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--ln)}
+.hd h3{font-size:13px;font-weight:600;letter-spacing:.01em}
+.hd .sp{flex:1}
+.hd .tab{font-size:11.5px;color:var(--mu);padding:4px 9px;border-radius:6px;cursor:pointer}
+.hd .tab.on{background:rgba(148,163,184,.12);color:var(--tx)}
+.cnt{font:500 11px var(--m);color:var(--mu);background:rgba(148,163,184,.1);padding:2px 7px;border-radius:5px}
+/* 쿼리 */
+.q{display:flex;gap:8px;padding:12px 16px 4px}
+.qin{flex:1;display:flex;align-items:center;gap:10px;height:40px;padding:0 12px;border:1px solid var(--ln2);border-radius:9px;background:#0a0e14;font:12.5px var(--m);min-width:0}
+.qin:focus-within{border-color:rgba(110,139,255,.55);box-shadow:0 0 0 3px rgba(110,139,255,.12)}
+.qin span{color:var(--ac);font-weight:600}
+.qin input{flex:1;background:none;border:0;outline:0;font:inherit;color:#d7e0ec;min-width:0}
+.run{height:40px;padding:0 16px;border-radius:9px;border:0;background:linear-gradient(135deg,#6e8bff,#8a7bff);font-weight:600;color:#fff;cursor:pointer}
+.qmeta{display:flex;gap:16px;padding:6px 16px 10px;font:11.5px var(--m);color:var(--mu)}
+.qmeta b{color:var(--ok);font-weight:500}
+.chart{padding:0 16px 6px}
+.chart svg{display:block;width:100%;height:132px}
+.lg{display:flex;gap:14px;padding:0 16px 12px;font-size:11.5px;color:var(--mu)}
+.lg i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:0}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{font-weight:500;color:var(--mu);text-align:left;padding:8px 16px;border-top:1px solid var(--ln);border-bottom:1px solid var(--ln);font-size:11.5px;background:rgba(148,163,184,.03)}
+td{padding:8px 16px;border-bottom:1px solid var(--ln);white-space:nowrap;font-variant-numeric:tabular-nums}
+td.m{font-family:var(--m);font-size:12px;color:var(--t2)}
+tr:last-child td{border-bottom:0}
+.hbar{display:inline-block;height:6px;border-radius:9px;background:linear-gradient(90deg,#6e8bff,#9a7bff);vertical-align:middle;margin-right:8px}
+/* 경보 */
+.al{display:grid;grid-template-columns:auto 1fr auto;gap:4px 12px;padding:12px 16px;border-bottom:1px solid var(--ln);cursor:pointer;position:relative}
+.al:hover{background:rgba(148,163,184,.04)}
+.al.on{background:rgba(110,139,255,.08)}
+.al.on::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:2px;border-radius:2px;background:var(--ac)}
+.sev{grid-row:1/3;align-self:start;margin-top:1px;font:600 10px/1 var(--f);letter-spacing:.06em;padding:5px 7px;border-radius:5px;text-transform:uppercase}
+.s-crit{color:#ffd9dd;background:rgba(255,77,97,.18);box-shadow:inset 0 0 0 1px rgba(255,77,97,.35)}
+.s-high{color:#ffe0cc;background:rgba(255,139,61,.16);box-shadow:inset 0 0 0 1px rgba(255,139,61,.32)}
+.s-med{color:#fbefc5;background:rgba(242,201,76,.13);box-shadow:inset 0 0 0 1px rgba(242,201,76,.3)}
+.s-low{color:#d6edff;background:rgba(79,182,255,.13);box-shadow:inset 0 0 0 1px rgba(79,182,255,.3)}
+.al b{font-weight:600;font-size:12.8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.al .t{font:11px var(--m);color:var(--mu);text-align:right}
+.al .s{grid-column:2/4;display:flex;gap:8px;align-items:center;font:11.5px var(--m);color:var(--t2);flex-wrap:wrap}
+.tac{font:500 10.5px var(--f);color:#c5b8ff;background:rgba(154,123,255,.12);padding:2px 7px;border-radius:5px}
+.ar{color:var(--mu)}
+.mitre{padding:12px 16px 14px}.mh{display:flex;justify-content:space-between;font-size:11.5px;color:var(--mu);margin-bottom:8px}
+.mg{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.mg span{height:30px;border-radius:5px;font:500 9.5px/1.15 var(--f);color:rgba(230,237,245,.85);padding:4px 5px;overflow:hidden}
+/* 아래 줄 */
+.row3{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) minmax(0,1fr);gap:14px}
+.stream{font:11.6px/1.75 var(--m);padding:8px 0;height:236px;overflow:hidden;position:relative;-webkit-mask:linear-gradient(180deg,#000 75%,transparent)}
+.ln{display:grid;grid-template-columns:86px 54px 120px 1fr;gap:10px;padding:0 16px;white-space:nowrap;overflow:hidden}
+.ln span:last-child{overflow:hidden;text-overflow:ellipsis;color:var(--t2)}
+.ln .ts{color:var(--mu)}
+.lv-E{color:var(--crit)}.lv-W{color:var(--med)}.lv-I{color:var(--low)}
+.ln.new{animation:in .5s ease}
+@keyframes in{from{background:rgba(110,139,255,.12)}to{background:transparent}}
+.ex{padding:14px 16px;display:grid;gap:11px}
+.code{display:flex;align-items:center;gap:8px}
+.code b{font:600 12px var(--m);color:#ffd9dd;background:rgba(255,77,97,.14);padding:3px 8px;border-radius:6px}
+.code span{color:var(--mu);font-size:11.5px}
+.ex dl{display:grid;grid-template-columns:62px 1fr;gap:9px 12px;font-size:12.5px}
+.ex dt{color:var(--mu);font-size:11.5px;padding-top:1px}
+.ex dd{color:var(--t2)}
+.ex dd code{font:11.5px var(--m);color:#c9d4ff;background:rgba(110,139,255,.1);padding:1px 6px;border-radius:4px}
+.fix{display:flex;gap:8px;margin-top:2px}
+.btn{height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--ln2);background:var(--p2);font-size:12px;font-weight:500;cursor:pointer}
+.btn.pri{background:rgba(110,139,255,.16);border-color:rgba(110,139,255,.4);color:#d5ddff}
+.col{display:grid;grid-template-columns:1fr auto auto;gap:4px 14px;padding:10px 16px;border-bottom:1px solid var(--ln);align-items:center}
+.col:last-child{border-bottom:0}
+.col b{font-weight:500;font-size:12.5px}
+.col small{grid-column:1;color:var(--mu);font:11px var(--m)}
+.col .e{font:12px var(--m);color:var(--t2);text-align:right}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px rgba(47,210,155,.14)}
+.dot.w{background:var(--med);box-shadow:0 0 0 3px rgba(242,201,76,.14)}
+.dot.e{background:var(--crit);box-shadow:0 0 0 3px rgba(255,77,97,.16)}
+@media (max-width:1180px){.kpis{grid-template-columns:repeat(3,1fr)}.grid,.row3{grid-template-columns:1fr}}
+@media (max-width:640px){.app{grid-template-columns:1fr}.rail{display:none}.crumb,.top .pill:not(.live){display:none}
+  main{padding:12px}.kpis{grid-template-columns:1fr 1fr}.kpis .kpi:first-child{grid-column:1/3}
+  .ln{grid-template-columns:70px 44px 1fr}.ln span:nth-child(3){display:none}.qmeta{flex-wrap:wrap;gap:6px 12px}
+  td:nth-child(4),th:nth-child(4){display:none}td,th{padding:8px 10px}.lg span:last-child{display:none}.hbar{max-width:60px}.mg{grid-template-columns:repeat(4,1fr)}
+  .ln{grid-template-columns:92px 44px 1fr}.hd .tab{display:none}.hd .tab.on{display:inline}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style></head>
+<body><div class="app">
+<nav class="rail" aria-label="Main">
+  <div class="mk"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18V6l8 7 8-7v12"/></svg></div>
+  <a class="on" href="#" title="Overview"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></a>
+  <a href="#" title="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></a>
+  <a href="#" title="Detections"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></a>
+  <a href="#" title="Collectors"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="18" height="6" rx="1.5"/><path d="M7 7h.01M7 17h.01"/></svg></a>
+  <a href="#" title="Tickets"><svg viewBox="0 0 24 24"><path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/></svg></a>
+  <a href="#" title="Parsers"><svg viewBox="0 0 24 24"><path d="M8 6l-5 6 5 6M16 6l5 6-5 6"/></svg></a>
+  <span class="sp"></span>
+  <a href="#" title="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></a>
+</nav>
+<div style="min-width:0">
+<header class="top">
+  <div class="brand">MAZKION<small>Remember everything. Miss nothing.</small></div>
+  <div class="crumb">SOC <b>/ Production · Seoul-A</b></div>
+  <span class="sp"></span>
+  <span class="pill">Last 24 hours ▾</span>
+  <span class="pill live"><i></i>Live</span>
+  <div class="av">JL</div>
+</header>
+<main>
+  <section class="kpis">
+    <div class="card kpi"><small>Events per second</small><b id="eps">48,210</b><div class="d"><span class="up">▲ 6.2%</span> vs. 1h avg · peak 61,904</div>
+      <svg class="sp" id="spark" viewBox="0 0 200 46" preserveAspectRatio="none"></svg></div>
+    <div class="card kpi"><small>Ingested today</small><b>86.4<em>GB</em></b><div class="d">4.17 B events · 312 sources</div><div class="bar"><i style="width:72%"></i></div></div>
+    <div class="card kpi"><small>Pipeline latency p95</small><b>0.82<em>s</em></b><div class="d"><span class="up">▼ 0.11s</span> agent → index</div></div>
+    <div class="card kpi"><small>Active collectors</small><b>128<em>/ 130</em></b><div class="d"><span class="dn">2 delayed</span> · 0 offline</div></div>
+    <div class="card kpi"><small>Open detections</small><b>23</b><div class="d"><span class="dn">3 critical</span> · 7 high · 13 other</div></div>
+  </section>
+
+  <section class="grid">
+    <div class="card">
+      <div class="hd"><h3>Search</h3><span class="cnt">pipe + SQL</span><span class="sp"></span><span class="tab on">Volume</span><span class="tab">Table</span><span class="tab">Saved</span></div>
+      <form class="q" id="qf"><label class="qin"><span>›</span><input id="qi" spellcheck="false" aria-label="Query" value='table sys_logs | search "ERROR" | stats count() by host | sort -count | head 6'></label><button class="run">Run</button></form>
+      <div class="qmeta"><span>Scanned <b id="qs">98.6 GB</b></span><span>in <b id="qt">1.84 s</b></span><span>Matched <b id="qm">1,284,903</b> events</span><span>Index · sys_logs@2026.11.13</span></div>
+      <div class="chart"><svg id="vol" viewBox="0 0 800 150" preserveAspectRatio="none" aria-label="Event volume"></svg></div>
+      <div class="lg"><span><i style="background:#ff4d61"></i>Error</span><span><i style="background:#f2c94c"></i>Warning</span><span><i style="background:#6e8bff"></i>Info</span><span style="margin-left:auto;font-family:var(--m)">00:00 — 24:00 KST · 15 min buckets</span></div>
+      <table><thead><tr><th>host</th><th>count()</th><th>share</th><th>last seen</th></tr></thead><tbody id="qr"></tbody></table>
+    </div>
+
+    <div class="card">
+      <div class="hd"><h3>Detections</h3><span class="cnt">23 open</span><span class="sp"></span><span class="tab on">Real-time</span><span class="tab">Batch</span><span class="tab">Behavior</span></div>
+      <div id="alerts"></div>
+      <div class="mitre"><div class="mh"><span>MITRE ATT&amp;CK coverage · 24h</span><span>tactics hit</span></div><div class="mg" id="mg"></div></div>
+    </div>
+  </section>
+
+  <section class="row3">
+    <div class="card"><div class="hd"><h3>Live event stream</h3><span class="cnt" id="lr">48.2k/s</span><span class="sp"></span><span class="tab on">All</span><span class="tab">Errors</span></div><div class="stream" id="st"></div></div>
+    <div class="card"><div class="hd"><h3>Error explained</h3><span class="sp"></span><span class="cnt">auto</span></div>
+      <div class="ex"><div class="code"><b>ING-4103</b><span>Write queue saturated · table fw_traffic</span></div>
+        <dl><dt>Summary</dt><dd>New firewall events are waiting longer than usual before they are stored.</dd>
+          <dt>Impact</dt><dd>Searches on <code>fw_traffic</code> lag by about 40 s. Other tables are isolated and unaffected.</dd>
+          <dt>Cause</dt><dd>Compaction on <code>idx-node-03</code> holds the table lock (12.4 s, held by <code>merge#2291</code>).</dd>
+          <dt>Fix</dt><dd>Wait for compaction to finish, or move it off-peak: <code>schedule compaction 02:00</code>.</dd></dl>
+        <div class="fix"><button class="btn pri">Apply suggestion</button><button class="btn">Open ticket</button></div></div></div>
+    <div class="card"><div class="hd"><h3>Collectors</h3><span class="sp"></span><span class="cnt">EPS · lag</span></div><div id="cols"></div></div>
+  </section>
+</main></div></div>
+<script>
+const $=s=>document.querySelector(s),RM=matchMedia("(prefers-reduced-motion: reduce)").matches,nf=n=>n.toLocaleString("en-US");
+// 탐지 경보(가상)
+const AL=[["crit","Credential stuffing against VPN gateway","Credential Access","203.0.113.47","10.20.4.11","1,912","2m"],
+["crit","Possible data exfiltration over DNS","Exfiltration","10.20.7.38","198.51.100.9","384","6m"],
+["high","New admin account created outside change window","Persistence","10.20.1.5","dc-01.corp","1","14m"],
+["high","Lateral movement via remote service","Lateral Movement","10.20.7.38","10.20.9.22","27","21m"],
+["med","Unusual login time for user r.kang (behavior)","Initial Access","192.0.2.66","sso.corp","3","38m"],
+["low","Port scan from internal host","Discovery","10.20.3.91","10.20.0.0/16","4,207","52m"]];
+const LBL={crit:"Critical",high:"High",med:"Medium",low:"Low"};
+$("#alerts").innerHTML=AL.map((a,i)=>`<div class="al${i?"":" on"}"><span class="sev s-${a[0]}">${LBL[a[0]]}</span><b>${a[1]}</b><span class="t">${a[6]} ago</span>
+<div class="s"><span class="tac">${a[2]}</span><span>${a[3]}</span><span class="ar">→</span><span>${a[4]}</span><span class="ar">· ${a[5]} events</span></div></div>`).join("");
+document.querySelectorAll(".al").forEach(el=>el.onclick=()=>{document.querySelectorAll(".al").forEach(x=>x.classList.remove("on"));el.classList.add("on")});
+const MT=[["Recon",1],["Resource Dev",0],["Initial Access",2],["Execution",1],["Persistence",3],["Priv. Escalation",1],["Defense Evasion",2],["Credential Access",4],["Discovery",2],["Lateral Movement",3],["Collection",0],["C2",2],["Exfiltration",4],["Impact",0]];
+$("#mg").innerHTML=MT.map(([t,v])=>`<span style="background:${["rgba(148,163,184,.07)","rgba(110,139,255,.18)","rgba(154,123,255,.28)","rgba(255,139,61,.32)","rgba(255,77,97,.42)"][v]}">${t}</span>`).join("");
+// 쿼리 결과
+const HOSTS=[["api-gw-02",412880],["auth-svc-01",301245],["pay-core-04",188310],["batch-07",160442],["edge-lb-01",121907],["mail-relay-01",100119]];
+function results(mult){const r=HOSTS.map(([h,c])=>[h,Math.round(c*mult)]),tot=r.reduce((s,x)=>s+x[1],0),mx=r[0][1];
+ $("#qr").innerHTML=r.map(([h,c],i)=>`<tr><td class="m">${h}</td><td>${nf(c)}</td><td><span class="hbar" style="width:${Math.round(c/mx*120)}px"></span>${(c/tot*100).toFixed(1)}%</td><td class="m">${i*7+2}s ago</td></tr>`).join("");
+ $("#qm").textContent=nf(tot)}
+results(1);
+$("#qf").onsubmit=e=>{e.preventDefault();const q=$("#qi").value.toLowerCase(),m=q.includes("warn")?2.6:q.includes("error")?1:.4+Math.random();
+ $("#qt").textContent=(1.2+Math.random()*1.1).toFixed(2)+" s";results(m)};
+// 수집량 그래프(쌓인 면)
+(function(){const N=96,W=800,H=150,inf=[],war=[],err=[];
+ for(let i=0;i<N;i++){const d=Math.sin((i-30)/96*Math.PI*2)*.5+.5;inf.push(40+d*55+Math.sin(i*1.7)*6);war.push(10+d*14+Math.cos(i*.9)*3);err.push(4+(i>58&&i<66?22-Math.abs(62-i)*4:0)+Math.sin(i*2.3)*1.5)}
+ const y=v=>H-6-v*.9,x=i=>i/(N-1)*W;
+ const area=(top,base,c,o)=>`<path d="M0 ${y(base[0])} ${top.map((v,i)=>`L${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(" ")} ${base.map((v,i)=>[i,v]).reverse().map(([i,v])=>`L${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(" ")}Z" fill="${c}" fill-opacity="${o}"/>`;
+ const z=inf.map(()=>0),a1=inf,a2=inf.map((v,i)=>v+war[i]),a3=a2.map((v,i)=>v+err[i]);
+ let g="";for(let k=1;k<4;k++)g+=`<line x1="0" x2="${W}" y1="${H-6-k*36}" y2="${H-6-k*36}" stroke="rgba(148,163,184,.08)"/>`;
+ $("#vol").innerHTML=g+`<defs><linearGradient id="gi" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#6e8bff" stop-opacity=".55"/><stop offset="1" stop-color="#6e8bff" stop-opacity=".05"/></linearGradient></defs>`
+  +area(a1,z,"url(#gi)",1)+area(a2,a1,"#e3ac3a",.85)+area(a3,a2,"#ff4d61",.8)
+  +`<path d="${a3.map((v,i)=>(i?"L":"M")+x(i).toFixed(1)+" "+y(v).toFixed(1)).join(" ")}" fill="none" stroke="#c9d4ff" stroke-opacity=".55" stroke-width="1"/>`
+  +`<line x1="${x(62)}" x2="${x(62)}" y1="10" y2="${H-6}" stroke="#ff4d61" stroke-dasharray="3 3" stroke-opacity=".7"/><text x="${x(62)+6}" y="20" fill="#ff9aa6" font-size="11" font-family="monospace">15:30 spike · ING-4103</text>`})();
+// EPS 실시간 꺾은선
+const sp=[];for(let i=0;i<40;i++)sp.push(46000+Math.sin(i/3)*2500+Math.random()*1800);
+function drawSpark(){const mn=Math.min(...sp)-800,mx=Math.max(...sp)+800,p=sp.map((v,i)=>`${(i/39*200).toFixed(1)} ${(44-(v-mn)/(mx-mn)*40).toFixed(1)}`);
+ $("#spark").innerHTML=`<defs><linearGradient id="gs" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#2fd29b" stop-opacity=".35"/><stop offset="1" stop-color="#2fd29b" stop-opacity="0"/></linearGradient></defs><path d="M${p.join(" L")} L200 46 L0 46Z" fill="url(#gs)"/><path d="M${p.join(" L")}" fill="none" stroke="#2fd29b" stroke-width="1.6"/>`;
+ const v=Math.round(sp[39]);$("#eps").textContent=nf(v);$("#lr").textContent=(v/1000).toFixed(1)+"k/s"}
+drawSpark();
+// 수집기
+const COLS=[["fw-collector-01","Firewall · syslog",14820,"0.4s","ok"],["win-agent-pool","Windows events · 412 agents",11290,"0.6s","ok"],["k8s-audit","Kubernetes audit",6044,"0.9s","ok"],["fw-collector-02","Firewall · syslog",9310,"38.2s","w"],["db-audit-01","Database audit",2210,"0.7s","ok"]];
+$("#cols").innerHTML=COLS.map(c=>`<div class="col"><b>${c[0]}</b><span class="e">${nf(c[2])}/s</span><span class="dot ${c[4]}"></span><small>${c[1]} · lag ${c[3]}</small></div>`).join("");
+// 실시간 이벤트
+const EV=[["E","auth-svc-01","login failed user=svc_backup src=203.0.113.47 reason=bad_password"],["I","api-gw-02","GET /v2/orders 200 18ms client=10.20.4.77"],["W","fw-edge-01","deny tcp 198.51.100.23:51522 -> 10.20.4.11:443 rule=geo-block"],
+["I","k8s-node-12","pod payments-7f9c restarted count=1 reason=OOMKilled"],["E","dns-res-01","query len=212 TXT a8f3e1.c2-relay.example qtype=TXT src=10.20.7.38"],["I","mail-relay-01","delivered msg=4f1a to=ops@corp.example size=18KB"],
+["W","pay-core-04","slow query 2.41s table=settlement rows=184,220"],["I","win-dc-01","4624 logon type=3 user=j.lee src=10.20.1.40"],["E","edge-lb-01","upstream timeout pool=checkout after 5000ms"],["I","batch-07","job nightly-recon finished 1,204,551 rows 3m12s"]];
+let ei=0,clock=new Date(2026,10,13,15,42,8);
+function line(n){const e=EV[ei++%EV.length];clock=new Date(clock.getTime()+137+Math.random()*400);
+ const t=clock.toTimeString().slice(0,8)+"."+String(clock.getMilliseconds()).padStart(3,"0");
+ return `<div class="ln${n?" new":""}"><span class="ts">${t}</span><span class="lv-${e[0]}">${{E:"ERROR",W:"WARN",I:"INFO"}[e[0]]}</span><span>${e[1]}</span><span>${e[2]}</span></div>`}
+$("#st").innerHTML=Array.from({length:13},()=>line(0)).reverse().join("");
+if(!RM)setInterval(()=>{const st=$("#st");st.insertAdjacentHTML("afterbegin",line(1));while(st.children.length>16)st.lastChild.remove();
+ sp.shift();sp.push(sp[sp.length-1]+(Math.random()-.48)*2600);drawSpark()},1100);
+</script>
+</body></html>

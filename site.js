@@ -48,6 +48,9 @@
   if (page === "home") {
     const track = document.querySelector(".track"), stage = document.querySelector(".stage");
     const V = Object.fromEntries([...stage.querySelectorAll("video")].map((v) => [v.dataset.k, v]));
+    // 휴대폰: 가벼운 영상(720p)을 쓰고, 흐림 효과를 줄인다. 아이폰은 한 번 재생을 시작해야 영상 탐색이 되므로 첫 터치 때 풀어 준다
+    const mobile = matchMedia("(max-width: 820px), (pointer: coarse)").matches, BL = mobile ? 0.3 : 1;
+    for (const v of Object.values(V)) if (v.dataset.src) { v.src = mobile ? v.dataset.srcM : v.dataset.src; v.load(); }
     const rainEl = stage.querySelector("canvas[data-k=code]"), rain = window.makeRain(rainEl); V.code = rainEl; let rainOn = false;
     const wash = stage.querySelector(".wash"), rail = [...document.querySelectorAll(".rail li")], railBox = document.querySelector(".rail");
     const copies = [...document.querySelectorAll(".copy")].map((el) => ({ el, a: +el.dataset.a, b: +el.dataset.b }));
@@ -98,6 +101,10 @@
     else startHands();
     V.morph.addEventListener("timeupdate", () => { if (intro && V.morph.currentTime >= INTRO) { intro = false; V.morph.pause(); } }); // 화면이 느려도 3초에서 정확히 멈춘다
 
+    const unlock = () => { for (const k of ["morph", "tunnel"]) { const v = V[k]; if (k === "morph" && intro) continue;
+      if (v.readyState < 2 && v.paused) { const pr = v.play(); if (pr) pr.then(() => v.pause()).catch(() => {}); } } };
+    addEventListener("touchstart", unlock, { passive: true }); addEventListener("scroll", unlock, { passive: true, once: true });
+    if (mobile) { const pr = V.tunnel.play(); if (pr) pr.then(() => V.tunnel.pause()).catch(() => {}); }
     const frame = () => {
       if (film && scrollY > 8) endFilm();
       filmK = film ? 1 : filmEnd ? Math.max(0, 1 - (performance.now() - filmEnd) / 1600) : 0; // 0.8초에 걸쳐 걷힌다
@@ -116,29 +123,29 @@
       const whip = (a, b) => Math.sin(Math.PI * clamp((sp - a) / (b - a))); // 움직이는 동안만 생기는 흐림(속도감)
       // 1) 손·뇌: 가운데 → 오른쪽으로 휙 비켜 글 자리를 내주고, 끝에는 카메라가 뇌 속으로 밀고 들어간다
       const mSide = seg(0.11, 0.17), mDive = seg(0.265, 0.325);
-      V.morph.style.transform = 'translate(' + SIDE * mSide * (1 - mDive) + 'vw,' + (17 * hk) + 'vh) scale(' + (1 - 0.26 * hk) * (1 - 0.18 * mSide) * (1 + 3 * mDive) + ')';
-      V.morph.style.filter = 'blur(' + (7 * whip(0.11, 0.17) + 16 * mDive) + 'px)';
+      V.morph.style.transform = 'translate(' + SIDE * mSide * (1 - mDive) + 'vw,' + ((innerHeight > innerWidth * 1.2 ? 12 : 17) * hk) + 'vh) scale(' + (1 - 0.26 * hk) * (1 - 0.18 * mSide) * (1 + 3 * mDive) + ')';
+      V.morph.style.filter = 'blur(' + BL * (7 * whip(0.11, 0.17) + 16 * mDive) + 'px)';
       V.morph.style.opacity = 1 - seg(0.285, 0.325);
       // 2) 코드 비: 뇌를 통과해 도착(크게 → 제자리), 나갈 때는 카메라가 오른쪽으로 돌아 왼쪽으로 흘러 나간다
       const cIn = seg(0.285, 0.35), cOut = seg(0.5, 0.56);
       V.code.style.opacity = cIn * (1 - cOut);
       V.code.style.transform = 'translateX(' + -46 * cOut + 'vw) scale(' + (1.5 - 0.5 * cIn + 0.1 * clamp((sp - 0.33) / 0.2)) + ')';
-      V.code.style.filter = 'blur(' + (12 * (1 - cIn) + 14 * whip(0.5, 0.56)) + 'px)';
+      V.code.style.filter = 'blur(' + BL * (12 * (1 - cIn) + 14 * whip(0.5, 0.56)) + 'px)';
       // 3) 구체: 오른쪽에서 가운데로 들어와 크게 멈췄다가, 옆으로 휙 비키며 글이 나온다. 끝에는 가운데로 돌아가 작아지며 다음 장면이 된다
       const sIn = seg(0.5, 0.56), sSide = seg(0.565, 0.615), sOut = seg(0.715, 0.775);
       V.sphere.style.opacity = clamp((sp - 0.5) / 0.02) * (1 - seg(0.74, 0.775));
       V.sphere.style.transform = 'translateX(' + (58 * (1 - sIn) + SIDE * sSide * (1 - sOut)) + 'vw) scale(' + (1.75 - 0.5 * sSide) * (1 - 0.55 * sOut) + ')';
-      V.sphere.style.filter = 'grayscale(1) brightness(1.2) contrast(1.08) blur(' + (14 * whip(0.5, 0.56) + 8 * whip(0.565, 0.615) + 10 * whip(0.715, 0.775)) + 'px)';
+      V.sphere.style.filter = 'grayscale(1) brightness(1.2) contrast(1.08) blur(' + BL * (14 * whip(0.5, 0.56) + 8 * whip(0.565, 0.615) + 10 * whip(0.715, 0.775)) + 'px)';
       // 4) 마지막: 카메라가 뒤로 빠지며 네 개의 빛이 드러난다
       const fIn = seg(0.725, 0.79);
       V.tunnel.style.opacity = fIn;
       V.tunnel.style.transform = 'scale(' + (1.6 - 0.6 * fIn) + ')';
-      V.tunnel.style.filter = 'blur(' + 10 * (1 - fIn) + 'px)';
+      V.tunnel.style.filter = 'blur(' + BL * 10 * (1 - fIn) + 'px)';
       // 1장면: 스크롤 = 손이 뇌로 바뀌는 시간
       if (V.morph.readyState >= 2) {
         if (intro && (V.morph.currentTime >= INTRO || sp > 0.012)) { intro = false; V.morph.pause(); }
         const t = INTRO + clamp(sp / MORPH_END) * (MORPH_LEN - INTRO);
-        if (!intro && Math.abs(V.morph.currentTime - t) > 0.03) V.morph.currentTime = t;
+        if (!intro && !V.morph.seeking && Math.abs(V.morph.currentTime - t) > 0.03) V.morph.currentTime = t;
       }
       { const on = +V.code.style.opacity > 0.01 && !reduce; if (on !== rainOn) { rainOn = on; on ? rain.start() : rain.stop(); } }
       for (const k of ["sphere"]) {
@@ -148,7 +155,7 @@
       }
       if (V.tunnel.readyState >= 2) { // 마지막 장면: AI 넷이 하나로 합쳐져 빛으로 터진다
         const tf = clamp((sp - FIN_A) / (FIN_B - FIN_A)) * FIN_LEN;
-        if (Math.abs(V.tunnel.currentTime - tf) > 0.03) V.tunnel.currentTime = tf;
+        if (!V.tunnel.seeking && Math.abs(V.tunnel.currentTime - tf) > 0.03) V.tunnel.currentTime = tf;
       }
 
       // 프레임이 살짝 안으로 접힌다 (Nolith), 마지막엔 다시 펴진다
