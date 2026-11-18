@@ -540,3 +540,18 @@ h1 em, h2 em { color: var(--gold); font-weight: 600; }
   .btn { height: 48px; }
 }
 @media (prefers-reduced-motion: reduce) { .pv { animation: none; } }
+/* 2026-11-18 4판: 브랜드 카피 '생각에 형태를' — 짧은 제목은 더 크게, 위계 정리 */
+.hero h1 { font-size: clamp(2.8rem, 6vw, 6rem); line-height: 1.08; letter-spacing: -.045em; }
+.hero .lead { margin-top: 24px; }
+.hero .process { margin-top: 40px; font: 500 11px/1 var(--en); letter-spacing: .24em; color: rgba(240,237,230,.4); }
+.walk-copy .body { margin-top: 16px; }
+.gets2 { list-style: none; margin: 30px 0 0; padding: 0; border-top: 1px solid rgba(240,237,230,.12); }
+.gets2 li { display: grid; grid-template-columns: 110px 1fr; align-items: baseline; gap: 16px; padding: 15px 0; border-bottom: 1px solid rgba(240,237,230,.08); }
+.gets2 small { font: 500 11px/1 var(--en); letter-spacing: .14em; color: rgba(198,166,107,.85); }
+.gets2 span { font-size: 15.5px; color: rgba(240,237,230,.86); }
+.works-head .fine { margin-top: 12px; }
+.launch .label { margin-bottom: 22px; }
+@media (max-width: 760px) {
+  .hero h1 { font-size: clamp(2.6rem, 13vw, 3.4rem); }
+  .gets2 li { grid-template-columns: 1fr; gap: 6px; }
+}
