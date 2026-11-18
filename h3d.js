@@ -100,11 +100,12 @@ export async function createNeuro(canvas) {
     pS.set(teamPoint(i), i * 3);
     rnd[i] = Math.random(); spark[i] = i >= 2 * meta.NH ? 1 : 0;
   }
+  const soma = new Float32Array(N); for (let i = 0; i < 2 * meta.NH; i += 36) soma[i] = 1;
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.BufferAttribute(ph, 3)); g.setAttribute("pb", new THREE.BufferAttribute(pb, 3)); g.setAttribute("psph", new THREE.BufferAttribute(pS, 3));
-  for (const [k, a] of Object.entries({ w, ps, along, vein, bright, r: rnd, spark })) g.setAttribute(k, new THREE.BufferAttribute(a, 1));
+  for (const [k, a] of Object.entries({ w, ps, along, vein, bright, r: rnd, spark, soma })) g.setAttribute(k, new THREE.BufferAttribute(a, 1));
   const pm = new THREE.ShaderMaterial({ uniforms: U, transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending,
-    vertexShader: COMMON + `attribute vec3 pb, psph; attribute float w, ps, along, vein, bright, r, spark; varying float vA; varying vec3 vC;
+    vertexShader: COMMON + `attribute vec3 pb, psph; attribute float w, ps, along, vein, bright, r, spark, soma; varying float vA; varying vec3 vC;
       void main(){ float mo; vec3 q = place(position, pb, psph, r, along, mo);
         // SYNAPSE의 순간: 3.2초마다 손끝에서 신호가 터지고, 빛의 고리가 퍼지며, 빛의 물결이 두 손을 지나간다
         float cyc = fract(uT/3.2), hands = 1. - uM1, sparkA = 0.;
@@ -115,18 +116,20 @@ export async function createNeuro(canvas) {
         vec4 mv = modelViewMatrix*vec4(q,1.); gl_Position = projectionMatrix*mv;
         float dz = -mv.z, base = ps*uScale*1.25/dz;
         float coc = abs(dz - uFocus) * uScale * .0022;                  // 초점에서 멀수록 크고 흐린 보케
-        float px = clamp((base + coc) * (1. + .5*sst(.3, .9, uM1)), 1., 40.); gl_PointSize = px;
+        float inB = sst(.3, .9, uM1) * (1. - sst(.3, .9, uM2));                // 뇌 단계: 작고 또렷한 점, 신경세포 몸체만 크게
+        float px = clamp((base + coc) * (1. + .5*sst(.3, .9, uM2)) * mix(1., .8 + 1.8*soma, inB), 1., 40.); gl_PointSize = px;
         float tip = exp(-length(position)*9.) * (1. - uM1);
         float run = pow(.5 + .5*sin(along*14. - uT*2.6 + r*.6), 10.) * (1. - uM1);   // 손목 → 손끝으로 흐르는 빛
         float fire = exp(-cyc*9.) * 1.1;
         float hand = clamp(w, 0., 1.6) * (.45 + .8*vein + 2.2*tip*(1. + fire) + .9*run + 2.4*wave);
         if (spark > .5) hand = sparkA * 2.6;
-        float brainB = (.9 + 2.6*bright) * (.75 + .5*pow(.5 + .5*sin(uT*2. + r*40.), 3.)) * 1.6;
+        float fireB = pow(.5 + .5*sin(uT*1.7 + r*40.), 14.);                     // 신경세포가 하나씩 켜졌다 꺼진다
+        float brainB = (.35 + 3.4*bright*bright + soma*(1.6 + 4.*fireB)) * 1.5;
         float sphB = (1.1 + 4.*pow(fract(r*7. + uT*.15), 18.)) * 1.5;
         float b = mix(mix(hand, brainB, sst(.3, .9, uM1)), sphB, sst(.3, .9, uM2));
         vA = b * min(1., base*base/(px*px)*1.7 + .05) * sst(0., .25, uForm) * (1. - .5*uLeave) * (1. + .3*mo) * (1. + uBurst*2.5);
         vA *= mix(1., pow(sst(0., .5, along), 1.6), 1. - uM1);  // 손목 쪽은 길고 부드럽게 어둠 속으로 사라진다(잘린 끝이 안 보이게)
-        float gold = clamp(tip*1.8 + run*.9 + wave*1.5 + spark*hands + step(.955, r)*.8 + sst(.3,.9,uM2)*pow(fract(r*7. + uT*.15), 18.)*3., 0., 1.);
+        float gold = clamp(tip*1.8 + run*.9 + wave*1.5 + spark*hands + step(.955, r)*.8 + inB*soma*fireB*1.2 + sst(.3,.9,uM2)*pow(fract(r*7. + uT*.15), 18.)*3., 0., 1.);
         if (spark > .5 && hands > .01) { gl_PointSize = mix(px, 2.6, hands); vA = mix(vA, sparkA * 1.6 * sst(.5, 1., uForm), hands); }
         vA *= uDim; vC = mix(vec3(.80,.79,.76), vec3(1.,.80,.50), gold); }`,
     fragmentShader: `varying float vA; varying vec3 vC; void main(){ vec2 d = gl_PointCoord*2.-1.; float r2 = dot(d,d); if (r2 > 1.) discard; gl_FragColor = vec4(vC, (exp(-r2*4.)+.3*exp(-r2*20.))*vA*.3); }` });
@@ -150,6 +153,39 @@ export async function createNeuro(canvas) {
     fragmentShader: `uniform float uDim; varying float vA; void main(){ gl_FragColor = vec4(.86,.80,.68, vA*uDim); }` });
   const lines = new THREE.LineSegments(lg, lm); lines.frustumCulled = false; scene.add(lines);
 
+  // 뇌의 신경망: 뇌 표면 위 신경세포(약 1/36)를 가까운 이웃 3개와 이어 그물을 만들고, 선을 따라 신호가 흐른다
+  const SOMA = (i) => i < 2 * meta.NH && i % 36 === 0;
+  const som = []; for (let i = 0; i < N; i++) if (SOMA(i)) som.push(i);
+  const CS = 0.11, grid = new Map(), key = (x, y, z) => x + "," + y + "," + z;
+  for (const i of som) { const k = key(Math.floor(pb[i * 3] / CS), Math.floor(pb[i * 3 + 1] / CS), Math.floor(pb[i * 3 + 2] / CS)); (grid.get(k) || grid.set(k, []).get(k)).push(i); }
+  const seen = new Set(), BE = [];
+  for (const i of som) {
+    const x = pb[i * 3], y = pb[i * 3 + 1], z = pb[i * 3 + 2], gx = Math.floor(x / CS), gy = Math.floor(y / CS), gz = Math.floor(z / CS), cand = [];
+    for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) for (let c = -1; c <= 1; c++) for (const j of grid.get(key(gx + a, gy + b, gz + c)) || []) {
+      if (j === i) continue; const d = (pb[j * 3] - x) ** 2 + (pb[j * 3 + 1] - y) ** 2 + (pb[j * 3 + 2] - z) ** 2; if (d < CS * CS) cand.push([d, j]); }
+    cand.sort((p, q) => p[0] - q[0]);
+    for (const [, j] of cand.slice(0, 3)) { const k = i < j ? i + "_" + j : j + "_" + i; if (!seen.has(k)) { seen.add(k); BE.push(i, j); } }
+  }
+  const NB = BE.length / 2, bp = new Float32Array(NB * 6), bb = new Float32Array(NB * 6), bs = new Float32Array(NB * 6), bt = new Float32Array(NB * 2), br = new Float32Array(NB * 2);
+  for (let e = 0; e < NB; e++) { const a = BE[e * 2], b = BE[e * 2 + 1], ph0 = Math.random();
+    bp.set(ph.subarray(a * 3, a * 3 + 3), e * 6); bp.set(ph.subarray(b * 3, b * 3 + 3), e * 6 + 3);
+    bb.set(pb.subarray(a * 3, a * 3 + 3), e * 6); bb.set(pb.subarray(b * 3, b * 3 + 3), e * 6 + 3);
+    bs.set(pS.subarray(a * 3, a * 3 + 3), e * 6); bs.set(pS.subarray(b * 3, b * 3 + 3), e * 6 + 3);
+    bt[e * 2] = 0; bt[e * 2 + 1] = 1; br[e * 2] = br[e * 2 + 1] = ph0; }
+  const bg = new THREE.BufferGeometry();
+  bg.setAttribute("position", new THREE.BufferAttribute(bp, 3)); bg.setAttribute("pb", new THREE.BufferAttribute(bb, 3)); bg.setAttribute("psph", new THREE.BufferAttribute(bs, 3));
+  bg.setAttribute("lt", new THREE.BufferAttribute(bt, 1)); bg.setAttribute("r", new THREE.BufferAttribute(br, 1));
+  const bm = new THREE.ShaderMaterial({ uniforms: U, transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending,
+    vertexShader: COMMON + `attribute vec3 pb, psph; attribute float lt, r; varying float vT, vR, vA;
+      void main(){ float mo; vec3 q = place(position, pb, psph, r, 0., mo); gl_Position = projectionMatrix*modelViewMatrix*vec4(q,1.);
+        vT = lt; vR = r; vA = sst(.75, 1., uM1) * (1. - sst(0., .3, uM2)) * (1. - uBurst); }`,
+    fragmentShader: `uniform float uT, uDim; varying float vT, vR, vA;
+      void main(){ float ph = fract(vR*7.3 + uT*(.35 + .3*fract(vR*13.)));                    // 선마다 다른 박자로 신호가 지나간다
+        float sig = exp(-pow((vT - ph*1.6 + .3)*7., 2.)) * step(.55, fract(vR*5.1));
+        vec3 c = mix(vec3(.62,.66,.74), vec3(1.,.82,.52), sig);
+        gl_FragColor = vec4(c, (.12 + .8*sig) * vA * uDim); }` });
+  const blines = new THREE.LineSegments(bg, bm); blines.frustumCulled = false; scene.add(blines);
+
   const composer = new EffectComposer(renderer); composer.addPass(new RenderPass(scene, camera));
   const bloom = new UnrealBloomPass(new THREE.Vector2(512, 512), 0.6, 0.55, 0.3); composer.addPass(bloom);
   const fin = new ShaderPass(FINAL); composer.addPass(fin);
@@ -171,7 +207,7 @@ export async function createNeuro(canvas) {
       U.uM1.value = o.m1; U.uM2.value = o.m2; U.uLeave.value = o.leave; U.uDim.value = o.dim; U.uBurst.value = o.burst || 0;
       // 카메라: 손(정면) → 뇌(비스듬히, 조금 가까이) → 구체(살짝 돌며)
       const a = -0.25 * U.uM1.value + 0.5 * U.uM2.value + Math.sin(t * 0.07) * 0.06 + ptr.x * 0.05;
-      const d = cam0[2] * (0.9 - 0.32 * U.uM1.value + 0.3 * U.uM2.value) * (1 - 0.06 * (1 - o.m1)) * (o.zoom || 1); // zoom: 휴대폰에서 뇌·구조를 멀리 놓아 작게
+      const d = cam0[2] * (0.9 - 0.22 * U.uM1.value + 0.2 * U.uM2.value) * (1 - 0.06 * (1 - o.m1)) * (o.zoom || 1); // zoom: 휴대폰에서 뇌·구조를 멀리 놓아 작게
       camera.position.set(Math.sin(a) * d, 0.18 + 0.25 * U.uM1.value - ptr.y * 0.08, Math.cos(a) * d); camera.lookAt(0, 0.04, 0);
       U.uFocus.value = d;
       camera.setViewOffset(W, H, -shift * W, (o.lift || 0) * H, W, H);
