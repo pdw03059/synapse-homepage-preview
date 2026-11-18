@@ -10,7 +10,7 @@ const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [..
 const secs = $$(".sec"), LAST = secs.length - 1;
 
 // 영역별 그래픽: 01 손(시작) · 02 뇌(작동 방식) · 03 AI 팀 모양 · 04 결과물(물러남) · 05 시작(퍼지며 밝아짐)
-const DIM = [1.3, 0.9, 0.85, 0.22, 0.95], SHIFT = [0.3, 0.24, 0.24, 0, 0], RAYS = [0.65, 0.25, 0.3, 0.06, 0.2];
+const DIM = [1.3, 0.4, 0.85, 0.22, 0.95], SHIFT = [0.3, 0.12, 0.24, 0, 0], RAYS = [0.65, 0.25, 0.3, 0.06, 0.2];
 const at = (arr, S) => { const i = Math.floor(clamp(S, 0, LAST)), j = Math.min(LAST, i + 1), f = ss(0.15, 0.85, S - i); return arr[i] + (arr[j] - arr[i]) * f; };
 let neuro = null, S = 0, Sd = 0, visible = true;
 const M = { m1: 0, m2: 0, b: 0 }, white = $(".whiteout");
@@ -41,6 +41,17 @@ function loop(now) {
 const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: 0.12 });
 secs.forEach((s) => io.observe(s));
 secs[0].classList.add("in");
+
+// 작동 방식: 단계를 누르면 오른쪽 화면만 바뀐다(자동 전환 없음). 방향키로도 이동
+const tabs = $$(".steps [role=tab]");
+function pick(i, focus) { tabs.forEach((t, k) => { const on = k === i; t.setAttribute("aria-selected", String(on)); t.tabIndex = on ? 0 : -1; $("#" + t.getAttribute("aria-controls")).hidden = !on; }); if (focus) tabs[i].focus(); }
+tabs.forEach((t, i) => { t.addEventListener("click", () => pick(i)); t.addEventListener("keydown", (e) => { if (e.key === "ArrowDown" || e.key === "ArrowRight") { e.preventDefault(); pick((i + 1) % tabs.length, true); } if (e.key === "ArrowUp" || e.key === "ArrowLeft") { e.preventDefault(); pick((i + tabs.length - 1) % tabs.length, true); } }); });
+if (tabs.length) pick(0);
+
+// 메뉴: 지금 보고 있는 섹션 표시
+const navLinks = $$(".menu a");
+const navIO = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) navLinks.forEach((a) => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); }), { rootMargin: "-45% 0px -50% 0px" });
+secs.forEach((s) => navIO.observe(s));
 
 // 모바일 메뉴, 시작 폼
 const nb = $(".nav-btn"), mnav = $(".mnav");

@@ -8,7 +8,7 @@
 <link rel="preload" href="assets/fonts/Pretendard-Regular.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Serif+KR:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="h.css?v=26">
+<link rel="stylesheet" href="h.css?v=27">
 </head>
 <body class="is-intro">
 <!-- 시안 H 2판 (2026-11-18): UX 개선 지시서 반영 — 5개 영역, 정보량 축소, 자동 넘김 없음. 이전 6섹션판은 시안H_백업_1118_6섹션/ -->
@@ -21,61 +21,83 @@
 
 <header class="nav">
   <a class="logo" href="h.html" aria-label="SYNAPSE 홈">SYNAPSE</a>
-  <nav class="menu" aria-label="주 메뉴">
-    <a href="product.html">PRODUCT</a><a href="how.html">HOW IT WORKS</a><a href="team.html">AI TEAM</a><a href="connect.html">CONNECT</a>
-  </nav>
-  <a class="nav-cta" href="#start">프로젝트 시작하기</a>
+  <nav class="menu" aria-label="주 메뉴"><a href="#how">작동 방식</a><a href="#team">AI 팀</a><a href="#works">프로젝트</a></nav>
+  <a class="nav-cta" href="#start">시작하기</a>
   <button class="nav-btn" type="button" aria-expanded="false" aria-controls="mnav">메뉴</button>
 </header>
-<nav class="mnav" id="mnav" aria-label="모바일 메뉴">
-  <a href="product.html">PRODUCT</a><a href="how.html">HOW IT WORKS</a><a href="team.html">AI TEAM</a><a href="connect.html">CONNECT</a><a href="#start">프로젝트 시작하기</a>
-</nav>
+<nav class="mnav" id="mnav" aria-label="모바일 메뉴"><a href="#how">작동 방식</a><a href="#team">AI 팀</a><a href="#works">프로젝트</a><a href="#start">시작하기</a></nav>
 
 <main>
   <!-- 01 HERO: SYNAPSE가 무엇인가 — 핵심 문장 + 설명 + 시작 버튼 + 손 시그니처 -->
   <section class="sec hero" id="s1">
     <div class="wrap">
-      <p class="eyebrow">AI 팀과 함께 만드는 제품</p>
+      <p class="eyebrow">AI 개발 플랫폼</p>
       <h1 class="lines"><span>아이디어만 있다면</span><span><em>시작</em>할 수 있습니다</span></h1>
-      <p class="lead">기획부터 디자인, 개발과 검토까지.<br>AI 팀과 함께 아이디어를 실제 제품으로 만들어보세요.</p>
-      <div class="ctas"><a class="btn gold" href="#start">프로젝트 시작하기 <span aria-hidden="true">→</span></a><a class="btn line" href="#how">작동 방식 알아보기 <span aria-hidden="true">↓</span></a></div>
+      <p class="lead">기획부터 디자인, 개발까지.<br>AI와 함께 아이디어를 실제 제품으로 만들어보세요.</p>
+      <div class="ctas"><a class="btn gold" href="#start">프로젝트 시작하기 <span aria-hidden="true">→</span></a><a class="btn text" href="#how">작동 방식 보기 <span aria-hidden="true">↓</span></a></div>
     </div>
   </section>
 
-  <!-- 02 HOW IT WORKS: 네 단계를 한 화면에서 -->
+  <!-- 02 작동 방식: 대표 예시 하나를 실제 화면으로 따라간다(누르는 단계만 바뀜, 자동 전환 없음) -->
   <section class="sec how" id="how">
-    <div class="wrap">
-      <div class="how-head">
-        <p class="label">HOW IT WORKS</p>
-        <h2 class="lines"><span>아이디어가</span><span>제품이 되기까지</span></h2>
+    <div class="wrap walk">
+      <div class="walk-copy">
+        <p class="label">FROM IDEA TO PRODUCT</p>
+        <h2 class="lines"><span>아이디어는 이렇게</span><span>제품이 됩니다</span></h2>
+        <p class="said"><span>사용자가 말합니다</span>“개인 운동 기록과 AI 코칭을 제공하는 앱을 만들고 싶어요.”</p>
+        <ol class="steps" role="tablist" aria-label="진행 단계">
+          <li><button type="button" role="tab" aria-selected="true" aria-controls="pv0" id="st0"><i>01</i><b>아이디어 분석</b><span>핵심 기능과 요구사항을 정리합니다.</span></button></li>
+          <li><button type="button" role="tab" aria-selected="false" aria-controls="pv1" id="st1"><i>02</i><b>디자인</b><span>실제 앱 화면으로 방향을 정합니다.</span></button></li>
+          <li><button type="button" role="tab" aria-selected="false" aria-controls="pv2" id="st2"><i>03</i><b>개발</b><span>확정한 화면을 바탕으로 구현합니다.</span></button></li>
+          <li><button type="button" role="tab" aria-selected="false" aria-controls="pv3" id="st3"><i>04</i><b>결과 확인</b><span>검토를 거친 결과를 직접 확인합니다.</span></button></li>
+        </ol>
       </div>
-      <ol class="steps">
-        <li><i>01</i><b>기획</b><p>아이디어를 이해하고 요구사항을 정리합니다.</p></li>
-        <li><i>02</i><b>디자인</b><p>실제 화면 시안을 확인하고 방향을 결정합니다.</p></li>
-        <li><i>03</i><b>개발</b><p>확정한 설계를 기반으로 제품을 구현합니다.</p></li>
-        <li><i>04</i><b>검토</b><p>결과를 확인하고 개선합니다.</p></li>
-      </ol>
+      <div class="walk-view">
+        <div class="pv on" id="pv0" role="tabpanel" aria-labelledby="st0">
+          <div class="pv-card plan"><p class="pv-t">기획 요약</p>
+            <dl><dt>대상</dt><dd>혼자 운동하는 입문자</dd><dt>핵심 기능</dt><dd>운동 기록 · AI 코칭 · 주간 리포트</dd><dt>화면</dt><dd>홈 · 기록 · 코칭 · 내 정보</dd><dt>다음 단계</dt><dd>화면 시안 확인</dd></dl></div>
+        </div>
+        <div class="pv" id="pv1" role="tabpanel" aria-labelledby="st1" hidden>
+          <div class="pv-shots"><img src="assets/kinds/kind-app.jpg?v=9" alt="앱 화면 시안 예시" loading="lazy"><p>시안을 보고 고를 수 있습니다. 확정해야 개발이 시작됩니다.</p></div>
+        </div>
+        <div class="pv" id="pv2" role="tabpanel" aria-labelledby="st2" hidden>
+          <div class="pv-card code"><p class="pv-t">workout.tsx</p><pre><code>export function WorkoutLog({ records }) {
+  const week = summarize(records);
+  return (
+    &lt;Screen title="오늘의 운동"&gt;
+      &lt;Coach tip={week.nextGoal} /&gt;
+      &lt;RecordList items={records} /&gt;
+    &lt;/Screen&gt;
+  );
+}</code></pre></div>
+        </div>
+        <div class="pv" id="pv3" role="tabpanel" aria-labelledby="st3" hidden>
+          <div class="pv-shots"><img src="assets/kinds/kind-app.jpg?v=9" alt="완성된 앱 화면 예시" loading="lazy"><p>검토 AI가 오류를 확인하고, 반영 여부는 사용자가 결정합니다.</p></div>
+        </div>
+        <p class="fine">이해를 돕기 위한 예시 화면입니다.</p>
+      </div>
     </div>
   </section>
-
-  <!-- 03 AI TEAM: 역할은 짧게, 자세한 설명은 눌러서 -->
+  <!-- 03 AI 팀: AI가 하는 일 → 사용자가 얻는 결과 -->
   <section class="sec crew" id="team">
     <div class="wrap">
       <div class="crew-copy">
         <p class="label">AI TEAM</p>
-        <h2 class="lines"><span>각자의 역할</span><span><em>하나의 결과</em></span></h2>
-        <p class="body">AI가 역할을 나누어 작업하고, 사용자가 최종 방향을 결정합니다.</p>
-        <div class="roles2">
-          <details><summary><b>Planner</b><span>기획</span></summary><p>아이디어와 요구사항을 정리해 기획으로 만듭니다.</p></details>
-          <details><summary><b>Designer</b><span>디자인</span></summary><p>화면 구조와 디자인 시안을 제안합니다.</p></details>
-          <details><summary><b>Builder</b><span>개발</span></summary><p>확정한 시안을 바탕으로 제품을 구현합니다.</p></details>
-          <details><summary><b>Reviewer</b><span>검토</span></summary><p>결과를 점검하고 고칠 점을 알려 줍니다. 만든 AI가 자기 결과를 스스로 승인하지 않습니다.</p></details>
-        </div>
-        <p class="fine">최종 반영은 언제나 사람이 승인합니다.</p>
+        <h2 class="lines"><span>혼자가 아니라</span><span><em>AI 팀</em>과 함께</span></h2>
+        <p class="body">역할을 나눈 AI가 함께 일하고, 마지막 결정은 사용자가 합니다.</p>
+        <table class="gets">
+          <thead><tr><th scope="col">AI가 하는 일</th><th scope="col">사용자가 얻는 것</th></tr></thead>
+          <tbody>
+            <tr><td><small>PLANNER</small>아이디어 분석</td><td>정리된 기획</td></tr>
+            <tr><td><small>DESIGNER</small>제품 설계</td><td>구체적인 구조와 디자인</td></tr>
+            <tr><td><small>BUILDER</small>개발</td><td>실제로 동작하는 결과</td></tr>
+            <tr><td><small>REVIEWER</small>검토</td><td>오류와 개선할 점</td></tr>
+          </tbody>
+        </table>
+        <p class="fine">만든 AI는 자기 결과를 스스로 승인하지 않습니다.</p>
       </div>
     </div>
   </section>
-
   <!-- 04 WHAT YOU CAN CREATE: 대표 결과물 3개, 나머지는 더 보기 -->
   <section class="sec works" id="works">
     <div class="wrap">
@@ -101,7 +123,7 @@
   <!-- 05 START: 프로젝트 시작 -->
   <section class="sec launch" id="start">
     <div class="wrap center">
-      <h2 class="lines big"><span>생각해 둔 아이디어가 있나요</span></h2>
+      <h2 class="lines big"><span>당신의 아이디어를</span><span>시작하세요</span></h2>
       <p class="body">아직 완벽하게 정리되지 않아도 괜찮습니다.<br>지금부터 함께 구체화해 보세요.</p>
       <form class="ask"><input type="text" aria-label="만들고 싶은 것" placeholder="만들고 싶은 것을 한 문장으로 적어 주세요"><button type="submit" class="btn gold">프로젝트 시작하기 <span aria-hidden="true">→</span></button></form>
       <p class="ask-note" aria-live="polite"></p>
@@ -111,6 +133,6 @@
 
 <footer class="foot"><span>SYNAPSE</span><span>AI 팀과 함께 만드는 제품</span></footer>
 
-<script type="module" src="h.js?v=32"></script>
+<script type="module" src="h.js?v=33"></script>
 </body>
 </html>
