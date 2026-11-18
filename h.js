@@ -1,5 +1,5 @@
 // SYNAPSE 시안 H — 동작: 실사 오프닝, 섹션에 따라 변하는 입자 시그니처, 섹션별 연출, 내비게이션, 자동 넘김
-import { createNeuro } from "./h3d.js?v=10";
+import { createNeuro } from "./h3d.js?v=11";
 
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const mobile = matchMedia("(max-width: 760px)").matches;
@@ -9,7 +9,7 @@ const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [..
 const secs = $$(".sec"), railLinks = $$(".rail a");
 
 // ── 입자 시그니처: 섹션 위치(S = 0~5)에 따라 손(연결) → 뇌(이해) → 구체(팀) 로 바뀌고, UI가 주인공인 섹션에서는 물러난다 ──
-const DIM = [1, 1, 0.34, 0.85, 0.36, 0.9], SHIFT = [0.3, 0.17, 0.08, 0, 0, 0], RAYS = [0.65, 0.25, 0.08, 0.35, 0.08, 0.2];
+const DIM = [1.3, 1.3, 0.5, 0.62, 0.5, 0.95], SHIFT = [0.3, 0.17, 0.08, 0, 0, 0], RAYS = [0.65, 0.25, 0.08, 0.35, 0.08, 0.2];
 const at = (arr, S) => { const i = Math.floor(clamp(S, 0, 5)), j = Math.min(5, i + 1), f = ss(0.15, 0.85, S - i); return arr[i] + (arr[j] - arr[i]) * f; };
 let neuro = null, S = 0, Sd = 0, cur = 0, visible = true;
 const M = { m1: 0, m2: 0, b: 0 }, white = document.querySelector(".whiteout");
@@ -35,7 +35,7 @@ function loop(now) {
   const bt = S > 4.7 ? 1 : 0; M.b += (bt - M.b) * (reduce ? 1 : bt ? 0.022 : 0.06);
   white.style.opacity = ss(0.45, 0.95, M.b).toFixed(3);
   document.body.classList.toggle("end", M.b > 0.7);
-  if (neuro) neuro.render(now, { m1: M.m1, m2: M.m2, burst: M.b, leave: 0, dim: at(DIM, Sd) * (mobile ? 0.8 : 1), shift: shiftV, lift: mobile ? 0.34 * (1 - ss(0.2, 0.9, Sd)) : 0, rays: at(RAYS, Sd) }, { x: ptr.sx, y: ptr.sy });
+  if (neuro) neuro.render(now, { m1: M.m1, m2: M.m2, burst: M.b, leave: 0, dim: at(DIM, Sd) * (mobile ? 0.95 : 1), shift: shiftV, lift: mobile ? 0.34 * (1 - ss(0.2, 0.9, Sd)) : 0, rays: at(RAYS, Sd) }, { x: ptr.sx, y: ptr.sy });
   const c = Math.min(5, Math.floor(S + 0.05)); // 레일은 실제로 보고 있는 섹션 기준
   if (c !== cur) { cur = c; railLinks.forEach((a, i) => a.classList.toggle("on", i === c)); }
   document.body.classList.toggle("scrolled", scrollY > 10);
@@ -149,6 +149,7 @@ function endIntro(force) {
   if (reduce || seen || location.hash) { op.remove(); document.body.classList.remove("is-intro"); neuro && neuro.form(); }
   else {
     opv.addEventListener("timeupdate", () => {
+      if (opv.duration && opv.currentTime > opv.duration - 1.6 && neuro) neuro.form(); // 오프닝이 끝나기 전에 손이 미리 모이기 시작
       if (opv.duration && opv.currentTime > opv.duration - 0.7) endIntro(); }); // 코드 화면이 흐려지며 그대로 손 입자로 이어진다
     opv.addEventListener("ended", () => endIntro()); opv.addEventListener("error", () => endIntro(true)); setTimeout(() => endIntro(), 6000);
     opv.playbackRate = 1.2; // 오프닝도 1.2배

@@ -161,12 +161,12 @@ export async function createNeuro(canvas) {
   const cam0 = B2T(meta.cam, 0), v = new THREE.Vector3();
 
   return {
-    form() { if (reduce) { U.uForm.value = 1; return; } formT0 = performance.now(); },
+    form() { if (reduce) { U.uForm.value = 1; return; } if (formT0 < 0 && U.uForm.value < 1) formT0 = performance.now(); },
     // p: 페이지 전체 진행도, shift: 글 반대편으로 미는 정도(0~1)
     // o: { m1 손→뇌, m2 뇌→구체, leave 흩어짐, dim 밝기, shift 오른쪽 밀기(화면 폭 비율), rays 빛줄기 }
     render(now, o, ptr) { const shift = o.shift;
       const t = reduce ? 0 : now / 1000; U.uT.value = t; fin.uniforms.uT.value = t;
-      if (formT0 >= 0) { U.uForm.value = Math.min(1, (now - formT0) / 2800); if (U.uForm.value >= 1) formT0 = -1; }
+      if (formT0 >= 0) { U.uForm.value = Math.min(1, (now - formT0) / 1500); if (U.uForm.value >= 1) formT0 = -1; }
       U.uM1.value = o.m1; U.uM2.value = o.m2; U.uLeave.value = o.leave; U.uDim.value = o.dim; U.uBurst.value = o.burst || 0;
       // 카메라: 손(정면) → 뇌(비스듬히, 조금 가까이) → 구체(살짝 돌며)
       const a = -0.25 * U.uM1.value + 0.5 * U.uM2.value + Math.sin(t * 0.07) * 0.06 + ptr.x * 0.05;
