@@ -76,17 +76,18 @@ export async function createNeuro(canvas) {
   const ph = new Float32Array(N * 3), pb = new Float32Array(N * 3), pS = new Float32Array(N * 3), rnd = new Float32Array(N), spark = new Float32Array(N);
   const golden = Math.PI * (3 - Math.sqrt(5));
   // 뇌 다음 모양: 'AI 팀' — 기획·디자인·개발·검토 네 개의 빛 마디가 신경 섬유로 서로 이어진 하나의 구조
-  const V = [[1, 1, 1], [-1, -1, 1], [-1, 1, -1], [1, -1, -1]].map((v) => v.map((c) => (c / Math.sqrt(3)) * 1.0));
-  const EDGES = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]];
+  // 다섯 요소(모델·에이전트·MCP & Skills·도구·워크플로우)가 고리로 이어지고 가운데 허브와도 연결된 구조
+  const V = [0, 1, 2, 3, 4].map((k) => { const a = (k / 5) * Math.PI * 2 + 0.3; return [Math.cos(a) * 0.95, Math.sin(a) * 0.62, Math.sin(a * 2 + 1) * 0.28]; });
+  const EDGES = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0], [0, 2], [1, 3], [2, 4], [3, 0], [4, 1]];
   function teamPoint(i) {
     const u = Math.random(), w = Math.random();
     if (i % 100 < 58) { // 마디: 빛나는 핵 + 바깥 껍질
-      const c = V[i % 4], th = golden * i, y = 1 - 2 * w, rr = Math.sqrt(1 - y * y);
+      const c = V[i % 5], th = golden * i, y = 1 - 2 * w, rr = Math.sqrt(1 - y * y);
       const R = u < 0.35 ? 0.065 * Math.cbrt(Math.random()) : 0.2 + (Math.random() - 0.5) * 0.03;
       return [c[0] + Math.cos(th) * rr * R, c[1] + y * R, c[2] + Math.sin(th) * rr * R];
     }
     if (i % 100 < 92) { // 섬유: 두 마디를 잇는 부드러운 곡선(가운데로 살짝 휨)
-      const [a, b] = EDGES[i % 6], A = V[a], B = V[b], t = u, bend = Math.sin(Math.PI * t) * 0.32, j = 0.012 + 0.02 * Math.sin(Math.PI * t);
+      const [a, b] = EDGES[i % 10], A = V[a], B = V[b], t = u, bend = Math.sin(Math.PI * t) * 0.32, j = 0.012 + 0.02 * Math.sin(Math.PI * t);
       return [0, 1, 2].map((k) => A[k] + (B[k] - A[k]) * t - (A[k] + B[k]) * 0.5 * bend + (Math.random() - 0.5) * j);
     }
     // 가운데 공유 핵: 네 마디가 함께 만드는 하나의 중심

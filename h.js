@@ -1,6 +1,6 @@
 // SYNAPSE 시안 H 2판 — 실사 오프닝 → 입자 시그니처(손 → 뇌 → AI 팀) + 5개 영역.
 // 스크롤은 방문자가 직접 한다(자동 넘김·강제 스크롤 없음). 그래픽은 스크롤 위치를 천천히 따라간다.
-import { createNeuro } from "./h3d.js?v=12";
+import { createNeuro } from "./h3d.js?v=13";
 
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const mobile = matchMedia("(max-width: 760px)").matches;
@@ -10,7 +10,7 @@ const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [..
 const secs = $$(".sec"), LAST = secs.length - 1;
 
 // 영역별 그래픽: 01 손(시작) · 02 뇌(작동 방식) · 03 AI 팀 모양 · 04 결과물(물러남) · 05 시작(퍼지며 밝아짐)
-const DIM = [1.3, 0.4, 0.85, 0.22, 0.95], SHIFT = [0.3, 0.12, 0.24, 0, 0], RAYS = [0.65, 0.25, 0.3, 0.06, 0.2];
+const DIM = [1.3, 0.55, 0.95, 0.16, 0.2, 0.28, 0.95], SHIFT = [0.3, 0.2, 0.24, 0, 0, 0, 0], RAYS = [0.65, 0.2, 0.3, 0.05, 0.1, 0.3, 0.2];
 const at = (arr, S) => { const i = Math.floor(clamp(S, 0, LAST)), j = Math.min(LAST, i + 1), f = ss(0.15, 0.85, S - i); return arr[i] + (arr[j] - arr[i]) * f; };
 let neuro = null, S = 0, Sd = 0, visible = true;
 const M = { m1: 0, m2: 0, b: 0 }, white = $(".whiteout");
