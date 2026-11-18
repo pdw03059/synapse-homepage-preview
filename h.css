@@ -661,3 +661,14 @@ h2 { font-size: clamp(1.9rem, 3.1vw, 3rem); line-height: 1.22; letter-spacing: -
 @media (prefers-reduced-motion: reduce) {
   .concept .vs-col, .parts li, .eco-grid div, .road li { opacity: 1; transform: none; transition: none; }
 }
+/* 2026-11-18 6판: '기존 방식' 판이 입자 위에서도 또렷하게 + 히어로 설명 폭 */
+.vs-col { background: rgba(10,10,11,.78); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.before { border: 1px dashed rgba(240,237,230,.32); }
+.before .vs-t { color: rgba(240,237,230,.62); }
+.before li { color: rgba(240,237,230,.78); border-color: rgba(240,237,230,.24); background: rgba(240,237,230,.04); }
+.before .vs-n { color: rgba(240,237,230,.72); }
+.after { background: rgba(14,12,9,.82); }
+.concept .body { background: none; }
+.hero .lead { max-width: 560px; }
+.parts + .fine { margin-top: 18px; }
+@media (max-width: 760px) { .concept .sec-head { text-shadow: 0 1px 14px rgba(0,0,0,.85); } }

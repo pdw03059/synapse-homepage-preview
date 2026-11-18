@@ -171,7 +171,7 @@ export async function createNeuro(canvas) {
       U.uM1.value = o.m1; U.uM2.value = o.m2; U.uLeave.value = o.leave; U.uDim.value = o.dim; U.uBurst.value = o.burst || 0;
       // 카메라: 손(정면) → 뇌(비스듬히, 조금 가까이) → 구체(살짝 돌며)
       const a = -0.25 * U.uM1.value + 0.5 * U.uM2.value + Math.sin(t * 0.07) * 0.06 + ptr.x * 0.05;
-      const d = cam0[2] * (0.9 - 0.32 * U.uM1.value + 0.3 * U.uM2.value) * (1 - 0.06 * (1 - o.m1));
+      const d = cam0[2] * (0.9 - 0.32 * U.uM1.value + 0.3 * U.uM2.value) * (1 - 0.06 * (1 - o.m1)) * (o.zoom || 1); // zoom: 휴대폰에서 뇌·구조를 멀리 놓아 작게
       camera.position.set(Math.sin(a) * d, 0.18 + 0.25 * U.uM1.value - ptr.y * 0.08, Math.cos(a) * d); camera.lookAt(0, 0.04, 0);
       U.uFocus.value = d;
       camera.setViewOffset(W, H, -shift * W, (o.lift || 0) * H, W, H);

@@ -1,6 +1,6 @@
 // SYNAPSE 시안 H 2판 — 실사 오프닝 → 입자 시그니처(손 → 뇌 → AI 팀) + 5개 영역.
 // 스크롤은 방문자가 직접 한다(자동 넘김·강제 스크롤 없음). 그래픽은 스크롤 위치를 천천히 따라간다.
-import { createNeuro } from "./h3d.js?v=13";
+import { createNeuro } from "./h3d.js?v=14";
 
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const mobile = matchMedia("(max-width: 760px)").matches;
@@ -33,7 +33,7 @@ function loop(now) {
   const bt = S > LAST - 0.3 ? 1 : 0; M.b += (bt - M.b) * (reduce ? 1 : bt ? 0.022 : 0.06);
   white.style.opacity = ss(0.45, 0.95, M.b).toFixed(3);
   document.body.classList.toggle("end", M.b > 0.7);
-  if (neuro) neuro.render(now, { m1: M.m1, m2: M.m2, burst: M.b, leave: 0, dim: at(DIM, Sd) * (mobile ? 0.95 : 1), shift: mobile ? 0 : at(SHIFT, Sd), lift: mobile ? 0.34 * (1 - ss(0.2, 0.9, Sd)) : 0, rays: at(RAYS, Sd) }, { x: ptr.sx, y: ptr.sy });
+  if (neuro) neuro.render(now, { m1: M.m1, m2: M.m2, burst: M.b, leave: 0, dim: at(DIM, Sd) * (mobile ? 0.95 - 0.4 * ss(0.4, 1, Sd) : 1), zoom: mobile ? 1 + 0.75 * ss(0.4, 1.1, Sd) : 1, shift: mobile ? 0 : at(SHIFT, Sd), lift: mobile ? 0.34 * (1 - ss(0.2, 0.9, Sd)) : 0, rays: at(RAYS, Sd) }, { x: ptr.sx, y: ptr.sy });
   document.body.classList.toggle("scrolled", scrollY > 10);
 }
 
