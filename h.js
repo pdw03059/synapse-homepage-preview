@@ -9,7 +9,7 @@ const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [..
 const secs = $$(".sec"), railLinks = $$(".rail a");
 
 // ── 입자 시그니처: 섹션 위치(S = 0~5)에 따라 손(연결) → 뇌(이해) → 구체(팀) 로 바뀌고, UI가 주인공인 섹션에서는 물러난다 ──
-const DIM = [1, 0.85, 0.14, 0.62, 0.2, 0.75], SHIFT = [0.3, 0.17, 0.08, 0, 0, 0], RAYS = [0.65, 0.25, 0.08, 0.35, 0.08, 0.2];
+const DIM = [1, 1, 0.34, 0.85, 0.36, 0.9], SHIFT = [0.3, 0.17, 0.08, 0, 0, 0], RAYS = [0.65, 0.25, 0.08, 0.35, 0.08, 0.2];
 const at = (arr, S) => { const i = Math.floor(clamp(S, 0, 5)), j = Math.min(5, i + 1), f = ss(0.15, 0.85, S - i); return arr[i] + (arr[j] - arr[i]) * f; };
 let neuro = null, S = 0, Sd = 0, cur = 0, visible = true;
 const M = { m1: 0, m2: 0, b: 0 }, white = document.querySelector(".whiteout");
@@ -29,13 +29,13 @@ function loop(now) {
   ptr.sx += (ptr.x - ptr.sx) * 0.05; ptr.sy += (ptr.y - ptr.sy) * 0.05;
   const shiftV = mobile ? 0 : at(SHIFT, Sd);
   // 모양 바뀜은 스크롤보다 천천히 따라가서(약 1.5초) 흩어졌다 모이는 과정이 보이게
-  const k = reduce ? 1 : 0.034;
+  const k = reduce ? 1 : 0.045;
   M.m1 += (ss(0.45, 1.15, S) - M.m1) * k; M.m2 += (ss(2.35, 3.05, S) - M.m2) * k;
   // 마지막 섹션: 구체가 퍼지며 화면이 하얘진다
   const bt = S > 4.7 ? 1 : 0; M.b += (bt - M.b) * (reduce ? 1 : bt ? 0.022 : 0.06);
   white.style.opacity = ss(0.45, 0.95, M.b).toFixed(3);
   document.body.classList.toggle("end", M.b > 0.7);
-  if (neuro) neuro.render(now, { m1: M.m1, m2: M.m2, burst: M.b, leave: 0, dim: at(DIM, Sd) * (mobile ? 0.55 : 1), shift: shiftV, lift: mobile ? 0.34 * (1 - ss(0.2, 0.9, Sd)) : 0, rays: at(RAYS, Sd) }, { x: ptr.sx, y: ptr.sy });
+  if (neuro) neuro.render(now, { m1: M.m1, m2: M.m2, burst: M.b, leave: 0, dim: at(DIM, Sd) * (mobile ? 0.8 : 1), shift: shiftV, lift: mobile ? 0.34 * (1 - ss(0.2, 0.9, Sd)) : 0, rays: at(RAYS, Sd) }, { x: ptr.sx, y: ptr.sy });
   const c = Math.min(5, Math.floor(S + 0.05)); // 레일은 실제로 보고 있는 섹션 기준
   if (c !== cur) { cur = c; railLinks.forEach((a, i) => a.classList.toggle("on", i === c)); }
   document.body.classList.toggle("scrolled", scrollY > 10);
@@ -59,7 +59,7 @@ function onEnter(sec) {
   if (sec.id === "s4") teamDemo(sec);
   if (sec.id === "s5") buildDemo(sec);
 }
-const SPEED = 1.5; // 1.25배에서 다시 1.2배 더 빠르게(2026-11-18) // 2026-11-18 사용자 요청: 자동 진행·연출을 이전보다 1.25배 빠르게
+const SPEED = 2.0; // 사용자 요청으로 더 빠르게(2026-11-18 마지막) // 1.25배에서 다시 1.2배 더 빠르게(2026-11-18) // 2026-11-18 사용자 요청: 자동 진행·연출을 이전보다 1.25배 빠르게
 const wait = (ms) => new Promise((r) => setTimeout(r, reduce ? 0 : ms / SPEED));
 // 02: 한 문장을 입력하면 → 아이디어 · 제품 · 기능 · 디자인으로 정리된다
 async function ideaDemo(sec) {
