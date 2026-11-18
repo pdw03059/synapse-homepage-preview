@@ -154,7 +154,7 @@ export async function createNeuro(canvas) {
   const fin = new ShaderPass(FINAL); composer.addPass(fin);
 
   let formT0 = -1, W = 1, H = 1;
-  const resize = () => { W = canvas.clientWidth || innerWidth; H = canvas.clientHeight || innerHeight; const dpr = Math.min(devicePixelRatio || 1, 1.5);
+  const resize = () => { W = canvas.clientWidth || innerWidth; H = canvas.clientHeight || innerHeight; const dpr = Math.min(devicePixelRatio || 1, innerWidth < 760 ? 1 : 1.5); // 휴대폰은 해상도를 낮춰 부담을 줄인다
     renderer.setPixelRatio(dpr); renderer.setSize(W, H, false); composer.setPixelRatio(dpr); composer.setSize(W, H);
     camera.aspect = W / H; camera.updateProjectionMatrix(); U.uScale.value = (H * dpr) / (2 * Math.tan((camera.fov * Math.PI) / 360)); fin.uniforms.uRes.value.set(W * dpr, H * dpr); };
   resize(); addEventListener("resize", resize);
