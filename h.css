@@ -672,3 +672,8 @@ h2 { font-size: clamp(1.9rem, 3.1vw, 3rem); line-height: 1.22; letter-spacing: -
 .hero .lead { max-width: 560px; }
 .parts + .fine { margin-top: 18px; }
 @media (max-width: 760px) { .concept .sec-head { text-shadow: 0 1px 14px rgba(0,0,0,.85); } }
+/* 카피 개편(2026-11-18): 첫 화면 서브 타이틀, 결과물 범위 설명 */
+.lead .sub{display:block;margin-bottom:10px;font-weight:600;font-size:1.08em;color:rgba(240,237,230,.9);letter-spacing:-.01em}
+.work small{display:block;margin-top:4px;font-size:12.5px;color:rgba(240,237,230,.5)}
+.launch .body{margin:18px auto 0;max-width:560px}
+
