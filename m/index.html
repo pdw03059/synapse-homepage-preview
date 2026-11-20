@@ -1,0 +1,972 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<title>SYNAPSE 시안 M</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="SYNAPSE — 말로 설명한 아이디어를 역할을 나눈 AI 팀이 실제 제품으로 만들고, 마지막 결정은 사람이 합니다.">
+<style>
+/* Layout: 어두운 실사 히어로(연결망 인터랙션) → 밝은 제품 구간(큰 목업·3D 궤도·연결망 구) → 어두운 마지막 CTA. 기준값: 히어로 제목 96px, 섹션 위아래 144px, 본문 17px, 등장 300ms ease-out */
+@font-face { font-family: "Pretendard"; font-weight: 400; font-display: swap; src: url(media/Pretendard-Regular.woff2) format("woff2"); }
+@font-face { font-family: "Pretendard"; font-weight: 500; font-display: swap; src: url(media/Pretendard-Medium.woff2) format("woff2"); }
+@font-face { font-family: "Pretendard"; font-weight: 600; font-display: swap; src: url(media/Pretendard-SemiBold.woff2) format("woff2"); }
+:root {
+  color-scheme: light;
+  /* 색 */
+  --bg: #F7F7F5; --surface: #FFFFFF; --sunk: #EFEFEC;
+  --t1: #0F1115; --t2: #4B5160; --t3: #7A8190;
+  --accent: #3D5AFE; --accent-ink: #FFFFFF; --accent-soft: #EBEEFF;
+  --line: #E4E4E0; --line-2: #D2D3CF;
+  --night: #0B0D12; --night-2: #151925; --on-night: #F3F4F7; --on-night-2: rgba(243,244,247,.72);
+  --ok: #1F8A5B; --ok-soft: #E3F4EC; --warn: #B4690E; --warn-soft: #FCF1E0; --bad: #C2413B; --bad-soft: #FBEAEA;
+  /* 글꼴 위계 6단계 */
+  --sans: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  --f-display: clamp(48px, 7vw, 96px);
+  --f-h2: clamp(32px, 4vw, 56px);
+  --f-h3: clamp(22px, 2vw, 30px);
+  --f-lead: clamp(17px, 1.35vw, 20px);
+  --f-body: 16px;
+  --f-cap: 13px;
+  /* 여백 8px 단위 */
+  --s1: 8px; --s2: 16px; --s3: 24px; --s4: 32px; --s5: 40px; --s6: 48px; --s8: 64px; --s10: 80px; --s12: 96px; --s18: 144px;
+  /* 모서리·그림자 */
+  --r1: 10px; --r2: 16px; --r3: 24px;
+  --sh1: 0 1px 2px rgba(15,17,21,.06), 0 0 0 1px rgba(15,17,21,.06);
+  --sh2: 0 12px 32px -12px rgba(15,17,21,.18), 0 0 0 1px rgba(15,17,21,.06);
+  --sh3: 0 40px 80px -24px rgba(15,17,21,.28), 0 0 0 1px rgba(15,17,21,.06);
+  /* 모션 */
+  --ease: cubic-bezier(.16, 1, .3, 1); --d1: 200ms; --d2: 300ms; --d3: 400ms;
+  --maxw: 1200px;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--t1); font: 400 var(--f-body)/1.7 var(--sans); letter-spacing: -.011em; word-break: keep-all; overflow-wrap: break-word; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 60; background: var(--night); }
+img, video, canvas { display: block; max-width: 100%; }
+a { color: inherit; }
+h1, h2, h3, h4, h5 { margin: 0; font-weight: 600; text-wrap: balance; }
+p { margin: 0; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 8px; }
+.wrap { max-width: var(--maxw); margin: 0 auto; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); }
+section { padding-block: var(--s18); }
+.eyebrow { font-size: var(--f-cap); font-weight: 600; letter-spacing: .12em; color: var(--accent); }
+.h2 { margin-top: var(--s2); font-size: var(--f-h2); line-height: 1.14; letter-spacing: -.04em; }
+.lead { margin-top: var(--s3); font-size: var(--f-lead); line-height: 1.65; color: var(--t2); max-width: 600px; }
+.sec-head { max-width: 760px; }
+.sec-head.center { margin: 0 auto; text-align: center; } .sec-head.center .lead { margin-left: auto; margin-right: auto; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 24px; border-radius: 999px; border: 0; font: 500 15px/1 var(--sans); text-decoration: none; cursor: pointer; transition: background var(--d2) var(--ease), color var(--d2), box-shadow var(--d2); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); } .btn.primary:hover { background: #2E48E8; }
+.btn.glass { background: rgba(255,255,255,.14); color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); } .btn.glass:hover { background: rgba(255,255,255,.22); }
+.btn.ghost { background: var(--surface); color: var(--t1); box-shadow: inset 0 0 0 1px var(--line-2); } .btn.ghost:hover { box-shadow: inset 0 0 0 1px var(--t3); }
+.btn .ar { transition: transform var(--d2) var(--ease); } .btn:hover .ar { transform: translateX(3px); }
+
+/* ── 내비게이션 ── */
+.nav { position: fixed; z-index: 50; top: env(safe-area-inset-top, 0px); left: 0; right: 0; color: #fff; transition: background var(--d3) var(--ease), color var(--d3), box-shadow var(--d3); }
+.nav .wrap { display: flex; align-items: center; gap: var(--s4); height: 72px; }
+.nav.light { background: rgba(247,247,245,.86); color: var(--t1); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 1px 0 var(--line); }
+.brand { font-size: 19px; font-weight: 600; letter-spacing: .14em; text-decoration: none; }
+.menu { display: flex; gap: var(--s4); margin-left: auto; }
+.menu a { font-size: 15px; text-decoration: none; opacity: .78; transition: opacity var(--d1); } .menu a:hover { opacity: 1; }
+.nav .btn { height: 40px; padding: 0 18px; font-size: 14px; }
+.burger { display: none; margin-left: auto; width: 44px; height: 44px; border: 0; background: none; color: inherit; cursor: pointer; }
+.burger i { display: block; width: 20px; height: 1.5px; margin: 5px auto; background: currentColor; }
+.drawer { position: fixed; z-index: 49; top: calc(72px + env(safe-area-inset-top, 0px)); left: 16px; right: 16px; padding: var(--s1); border-radius: var(--r2); background: var(--surface); box-shadow: var(--sh3); }
+.drawer a { display: block; padding: 14px var(--s2); border-radius: var(--r1); font-size: 16px; text-decoration: none; } .drawer a:hover { background: var(--bg); }
+
+/* ── 1. 히어로: 실사 영상 + 연결망 인터랙션 ── */
+.hero { position: relative; min-height: 100svh; padding: 0; overflow: hidden; background: var(--night); color: var(--on-night); display: flex; align-items: center; }
+.hero video, .hero .poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(3px) saturate(.85); transform: scale(1.06); }
+.hero .shade { position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 45%, rgba(11,13,18,.55), rgba(11,13,18,.88) 70%), linear-gradient(180deg, rgba(11,13,18,.4), rgba(11,13,18,.2) 40%, rgba(11,13,18,.92)); }
+#net { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hero-in { position: relative; z-index: 2; width: 100%; text-align: center; padding-block: 140px 120px; pointer-events: none; }
+.hero-in a, .hero-in button { pointer-events: auto; }
+.hero .eyebrow { color: #9DB0FF; }
+.hero h1 { margin-top: var(--s3); font-size: var(--f-display); font-weight: 600; line-height: 1.02; letter-spacing: -.055em; }
+.hero h1 span { display: block; will-change: transform; transition: transform 600ms var(--ease); }
+.hero h1 .l1 { color: rgba(243,244,247,.86); font-weight: 500; }
+.hero h1 .l2 { color: #fff; margin-top: -.04em; }
+.hero .lead { margin: var(--s3) auto 0; color: var(--on-night-2); max-width: 620px; }
+.hero .ctas { display: flex; justify-content: center; gap: 12px; margin-top: var(--s5); }
+.hero .proof { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 24px; margin-top: var(--s6); font-size: 14px; color: rgba(243,244,247,.6); }
+.hero .proof span::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 8px; border-radius: 50%; background: #7F95FF; vertical-align: 2px; }
+
+/* ── 2. 키워드 띠 ── */
+.marquee { padding-block: 28px; border-bottom: 1px solid var(--line); overflow: hidden; background: var(--surface); }
+.track { display: flex; gap: 40px; width: max-content; animation: flow 50s linear infinite; }
+.track span { font-size: 18px; font-weight: 500; color: var(--t2); white-space: nowrap; display: flex; align-items: center; gap: 40px; }
+.track span::after { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--line-2); }
+.marquee:hover .track { animation-play-state: paused; }
+@keyframes flow { to { transform: translateX(-50%); } }
+
+/* ── 3. 문제 제기 ── */
+.problem .grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: var(--s10); align-items: center; }
+.problem figure { margin: 0; border-radius: var(--r3); overflow: hidden; aspect-ratio: 4/5; box-shadow: var(--sh2); }
+.problem figure img { width: 100%; height: 100%; object-fit: cover; }
+.pains { list-style: none; margin: var(--s5) 0 0; padding: 0; display: grid; gap: var(--s2); }
+.pains li { display: grid; grid-template-columns: 40px 1fr; gap: var(--s2); align-items: start; padding: var(--s3); border-radius: var(--r2); background: var(--surface); box-shadow: var(--sh1); }
+.pains .ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--sunk); }
+.pains svg { width: 20px; height: 20px; fill: none; stroke: var(--t1); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.pains b { display: block; font-size: 17px; font-weight: 600; }
+.pains span { display: block; margin-top: 4px; font-size: 15px; color: var(--t2); }
+
+/* ── 제품 화면 공통 ── */
+.ui { background: var(--surface); border-radius: var(--r2); box-shadow: var(--sh3); overflow: hidden; color: var(--t1); font-size: 14px; line-height: 1.5; text-align: left; }
+.ui-bar { display: flex; align-items: center; gap: 10px; height: 48px; padding: 0 var(--s2); border-bottom: 1px solid var(--line); }
+.ui-bar .dot { width: 22px; height: 22px; border-radius: 7px; background: var(--accent); display: grid; place-items: center; color: #fff; font-size: 11px; font-weight: 600; }
+.ui-bar b { font-size: 14px; } .ui-bar .crumb { color: var(--t3); font-size: 13px; }
+.ui-bar .right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.badge { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; font-size: 12px; font-weight: 500; white-space: nowrap; background: var(--sunk); color: var(--t2); }
+.badge.ok { background: var(--ok-soft); color: var(--ok); } .badge.warn { background: var(--warn-soft); color: var(--warn); } .badge.ac { background: var(--accent-soft); color: var(--accent); } .badge.bad { background: var(--bad-soft); color: var(--bad); }
+.badge.live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .3; } }
+.av { flex: none; width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; font-size: 12.5px; font-weight: 600; }
+.av.lead-ai { background: #EBEEFF; color: #3D5AFE; } .av.arch { background: #E8F3FB; color: #1F6FA8; } .av.rev { background: #FCF1E0; color: #B4690E; } .av.test { background: #E3F4EC; color: #1F8A5B; } .av.me { background: var(--t1); color: #fff; }
+.mini { height: 32px; padding: 0 14px; border-radius: 999px; border: 0; font: 500 13px var(--sans); cursor: pointer; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-2); color: var(--t1); }
+.mini.primary { background: var(--accent); color: #fff; box-shadow: none; }
+
+/* ── 4. 핵심 기능 4개 ── */
+.feats { display: grid; gap: var(--s18); margin-top: var(--s12); }
+.feat { display: grid; grid-template-columns: 5fr 7fr; gap: var(--s10); align-items: center; }
+.feat.rev { grid-template-columns: 7fr 5fr; } .feat.rev .ftxt { order: 2; }
+.ftxt .num { font-size: var(--f-cap); font-weight: 600; letter-spacing: .1em; color: var(--t3); font-variant-numeric: tabular-nums; }
+.ftxt h3 { margin-top: var(--s2); font-size: clamp(28px, 2.8vw, 40px); line-height: 1.2; letter-spacing: -.035em; }
+.ftxt p { margin-top: var(--s2); font-size: 17px; color: var(--t2); }
+.ftxt ul { list-style: none; margin: var(--s3) 0 0; padding: var(--s3) 0 0; border-top: 1px solid var(--line); display: grid; gap: 12px; }
+.ftxt li { display: flex; gap: 12px; font-size: 15px; color: var(--t2); }
+.ftxt li svg { flex: none; width: 20px; height: 20px; margin-top: 2px; fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.stage { position: relative; perspective: 1400px; min-width: 0; }
+.stage .photo { border-radius: var(--r3); overflow: hidden; aspect-ratio: 16/11; }
+.stage .photo img { width: 100%; height: 100%; object-fit: cover; }
+.stage .ui { position: relative; margin: -42% 6% 0; transform-style: preserve-3d; transition: transform var(--d3) var(--ease), box-shadow var(--d3) var(--ease); }
+.stage:hover .ui { box-shadow: 0 60px 110px -30px rgba(15,17,21,.38), 0 0 0 1px rgba(15,17,21,.06); }
+
+/* 요구사항 */
+.chat { padding: var(--s3); display: grid; gap: 12px; }
+.msg { display: flex; gap: 12px; align-items: flex-start; }
+.msg.me { flex-direction: row-reverse; }
+.bub { max-width: 78%; padding: 12px 16px; border-radius: 16px; font-size: 14.5px; }
+.msg.me .bub { background: var(--t1); color: #fff; border-top-right-radius: 4px; }
+.msg.ai .bub { background: var(--sunk); border-top-left-radius: 4px; }
+.reqs { margin: 0 var(--s3) var(--s3); border-radius: var(--r1); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; }
+.reqs .h { display: flex; justify-content: space-between; padding: 10px 14px; background: #FAFAF8; font-size: 12.5px; color: var(--t3); border-bottom: 1px solid var(--line); }
+.req { display: grid; grid-template-columns: 64px 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.req:last-child { border: 0; }
+.req code { font: 600 12px var(--sans); color: var(--t3); }
+.typing::after { content: ""; display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -2px; background: currentColor; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* AI 팀 토론 */
+.room { display: grid; grid-template-columns: 1fr; }
+.roles { display: flex; gap: 8px; padding: 12px var(--s2); border-bottom: 1px solid var(--line); overflow: hidden; }
+.role { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 999px; background: var(--bg); font-size: 13px; white-space: nowrap; }
+.role .av { width: 24px; height: 24px; border-radius: 8px; font-size: 11px; }
+.thread { padding: var(--s3); display: grid; gap: var(--s2); }
+.post { display: flex; gap: 12px; }
+.post .who { font-size: 13px; color: var(--t3); } .post .who b { color: var(--t1); font-weight: 600; margin-right: 6px; }
+.post p { margin-top: 4px; font-size: 14.5px; }
+.post .ref { display: inline-flex; margin-top: 8px; padding: 6px 10px; border-radius: 8px; background: var(--bg); font-size: 12.5px; color: var(--t2); }
+.decision { margin: 0 var(--s3) var(--s3); padding: 14px var(--s2); border-radius: var(--r1); background: var(--accent-soft); display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 14px; }
+.decision b { color: var(--accent); }
+
+/* 디자인 시안 */
+.boards { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s2); padding: var(--s3); background: #F4F4F2; }
+.scr { min-width: 0; }
+.phone { border-radius: 22px; padding: 10px; background: #fff; box-shadow: var(--sh2); }
+.phone .in { border-radius: 14px; overflow: hidden; background: #FBFBFA; aspect-ratio: 9/18; padding: 12px 10px; display: flex; flex-direction: column; gap: 8px; font-size: 10.5px; }
+.phone .tt { font-size: 13px; font-weight: 600; letter-spacing: -.02em; }
+.phone .mut { color: var(--t3); font-size: 9.5px; }
+.ring { width: 76px; height: 76px; margin: 4px auto; border-radius: 50%; background: conic-gradient(var(--accent) 0 72%, #E3E6F3 72% 100%); display: grid; place-items: center; }
+.ring i { width: 58px; height: 58px; border-radius: 50%; background: #FBFBFA; display: grid; place-items: center; font-style: normal; font-weight: 600; font-size: 13px; }
+.li { display: flex; justify-content: space-between; align-items: center; padding: 7px 8px; border-radius: 8px; background: #fff; box-shadow: var(--sh1); }
+.cta-m { margin-top: auto; height: 28px; border-radius: 999px; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 10.5px; font-weight: 500; }
+.fld { padding: 7px 8px; border-radius: 8px; background: #fff; box-shadow: inset 0 0 0 1px var(--line); color: var(--t3); }
+.fld b { display: block; color: var(--t1); font-weight: 500; font-size: 11px; }
+.chips { display: flex; gap: 4px; flex-wrap: wrap; } .chips span { padding: 3px 7px; border-radius: 999px; background: #fff; box-shadow: inset 0 0 0 1px var(--line); font-size: 9.5px; } .chips .on { background: var(--t1); color: #fff; box-shadow: none; }
+.mbars { display: flex; align-items: flex-end; gap: 4px; height: 70px; } .mbars i { flex: 1; border-radius: 3px 3px 0 0; background: #DADFF5; } .mbars i.hi { background: var(--accent); }
+.scr-cap { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-top: 10px; font-size: 13px; }
+.comment { position: absolute; right: -12px; bottom: 54px; padding: 10px 12px; max-width: 220px; border-radius: 12px; background: var(--t1); color: #fff; font-size: 12.5px; box-shadow: var(--sh3); }
+.comment small { display: block; color: rgba(255,255,255,.6); font-size: 11.5px; }
+
+/* PR 교차 검토 */
+.pr-head { padding: var(--s2) var(--s3); border-bottom: 1px solid var(--line); }
+.pr-head h5 { font-size: 15.5px; } .pr-head p { margin-top: 4px; font-size: 13px; color: var(--t3); }
+.checks { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.diff { font: 13px/1.7 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; }
+.diff .f { display: flex; justify-content: space-between; padding: 8px var(--s3); background: #FAFAF8; border-bottom: 1px solid var(--line); font: 500 13px var(--sans); color: var(--t2); }
+.diff .ln { display: grid; grid-template-columns: 40px 16px 1fr; padding: 0 var(--s3); white-space: pre; overflow: hidden; }
+.diff .ln span:first-child { color: var(--t3); }
+.diff .add { background: #EDF8F1; } .diff .add span:nth-child(2) { color: var(--ok); }
+.diff .del { background: #FCEFEE; } .diff .del span:nth-child(2) { color: var(--bad); }
+.rv-box { margin: var(--s2) var(--s3); padding: 14px var(--s2); border-radius: var(--r1); box-shadow: inset 0 0 0 1px var(--line); font-family: var(--sans); }
+.rv-box .top { display: flex; align-items: center; gap: 10px; font-size: 13px; } .rv-box .top b { font-weight: 600; }
+.rv-box p { margin-top: 8px; font-size: 14px; color: var(--t2); }
+.approve-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px var(--s3); border-top: 1px solid var(--line); background: #FAFAF8; font-size: 13.5px; }
+
+/* ── 5. AI 팀 궤도 (CSS 3D) ── */
+.orbit-sec { overflow: hidden; background: linear-gradient(180deg, var(--bg), #EEF0F7 50%, var(--bg)); }
+.orbit-wrap { position: relative; height: 620px; margin-top: var(--s8); perspective: 1600px; }
+.orbit { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; }
+.core { position: absolute; left: 50%; top: 50%; z-index: 20; width: 280px; transform: translate(-50%, -50%); padding: var(--s3); border-radius: var(--r3); background: var(--t1); color: #fff; text-align: center; box-shadow: 0 30px 80px -20px rgba(61,90,254,.55); }
+.core .k { font-size: 12px; letter-spacing: .12em; color: #9DB0FF; font-weight: 600; }
+.core p { margin-top: 10px; font-size: 18px; font-weight: 500; line-height: 1.45; }
+.core .glow { position: absolute; inset: -40px; z-index: -1; border-radius: 50%; background: radial-gradient(closest-side, rgba(61,90,254,.28), transparent); }
+.ocard { position: absolute; left: 0; top: 0; width: 220px; margin: -80px 0 0 -110px; border-radius: var(--r2); background: var(--surface); box-shadow: var(--sh2); overflow: hidden; backface-visibility: hidden; transition: box-shadow var(--d2); font-size: 13.5px; }
+.ocard.role-c { padding: var(--s2); }
+.ocard .top { display: flex; align-items: center; gap: 10px; }
+.ocard b { font-size: 14.5px; } .ocard small { display: block; color: var(--t3); font-size: 12px; }
+.ocard p { margin-top: 10px; color: var(--t2); font-size: 13px; line-height: 1.5; }
+.ocard.photo-c img { width: 100%; aspect-ratio: 4/3; object-fit: cover; }
+.ocard.photo-c span { display: block; padding: 10px 14px; font-size: 13px; color: var(--t2); }
+.ocard.out-c { padding: var(--s2); }
+.ocard.out-c .k { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--t3); }
+.ocard.out-c h6 { margin: 8px 0 0; font-size: 15px; font-weight: 600; }
+.ocard .bar2 { height: 6px; margin-top: 12px; border-radius: 3px; background: var(--sunk); overflow: hidden; } .ocard .bar2 i { display: block; height: 100%; background: var(--accent); }
+.orbit-legend { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 24px; margin-top: var(--s4); font-size: 14px; color: var(--t2); }
+
+/* ── 6. 작동 방식 (sticky) ── */
+.how .layout { display: grid; grid-template-columns: 1fr 1.15fr; gap: var(--s10); margin-top: var(--s10); align-items: start; }
+.steps { list-style: none; margin: 0; padding: 0; }
+.steps li { padding: var(--s5) 0 var(--s5) var(--s4); border-left: 2px solid var(--line); min-height: 30vh; display: flex; flex-direction: column; justify-content: center; transition: border-color var(--d3) var(--ease); }
+.steps li .sn { font-size: var(--f-cap); font-weight: 600; color: var(--t3); font-variant-numeric: tabular-nums; transition: color var(--d3); }
+.steps li h3 { margin-top: 10px; font-size: var(--f-h3); letter-spacing: -.025em; color: var(--t2); transition: color var(--d3); }
+.steps li p { margin-top: 10px; font-size: 16px; color: var(--t2); max-width: 420px; }
+.steps li .out { margin-top: 14px; font-size: 13.5px; color: var(--t3); } .steps li .out b { color: var(--t1); font-weight: 500; }
+.steps li.on { border-left-color: var(--accent); } .steps li.on .sn { color: var(--accent); } .steps li.on h3 { color: var(--t1); }
+.board { position: sticky; top: calc(50vh - 230px); }
+.board .ui { min-height: 460px; }
+.board .prog { display: flex; gap: 6px; padding: 14px var(--s3); border-bottom: 1px solid var(--line); }
+.board .prog i { flex: 1; height: 4px; border-radius: 2px; background: var(--sunk); transition: background var(--d3) var(--ease); } .board .prog i.on { background: var(--accent); }
+.scene { display: none; padding: var(--s3); } .scene.on { display: block; animation: rise var(--d3) var(--ease); }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+.scene .k { font-size: 13px; color: var(--t3); }
+.scene h4 { margin-top: 6px; font-size: 20px; letter-spacing: -.02em; }
+.sl { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; padding: 14px var(--s2); border-radius: var(--r1); background: var(--bg); font-size: 14.5px; }
+.sl .l { display: flex; gap: 10px; align-items: center; min-width: 0; }
+.pv { margin-top: 14px; border-radius: var(--r1); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; }
+.pv .url { display: flex; gap: 8px; align-items: center; padding: 8px 12px; background: #FAFAF8; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--t3); }
+.pv .url span { flex: 1; padding: 4px 10px; border-radius: 6px; background: #fff; box-shadow: inset 0 0 0 1px var(--line); }
+.pv .body { display: grid; grid-template-columns: 1.3fr 1fr; gap: 14px; padding: var(--s2); }
+.pv .big { font-size: 30px; font-weight: 600; letter-spacing: -.03em; }
+.sw { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+.sw div { aspect-ratio: 3/4; border-radius: 10px; background: #fff; box-shadow: var(--sh1); padding: 10px; font-size: 11.5px; display: flex; flex-direction: column; gap: 6px; }
+.sw div i { display: block; height: 6px; border-radius: 3px; background: var(--sunk); } .sw div i.a { background: var(--accent); width: 60%; } .sw div i.s { width: 70%; }
+
+/* ── 7. 연결망 구 (활용 사례) ── */
+.uses .grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: var(--s8); align-items: center; }
+.sphere-box { position: relative; aspect-ratio: 1; border-radius: var(--r3); background: radial-gradient(circle at 50% 45%, #FFFFFF, #EEF0F7 70%); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; touch-action: pan-y; cursor: grab; }
+.sphere-box:active { cursor: grabbing; }
+#sphere { width: 100%; height: 100%; }
+.sphere-hint { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.85); box-shadow: var(--sh1); font-size: 12.5px; color: var(--t2); white-space: nowrap; pointer-events: none; }
+.use-list { list-style: none; margin: var(--s5) 0 0; padding: 0; display: grid; gap: 12px; }
+.use { display: grid; grid-template-columns: 48px 1fr; gap: var(--s2); padding: var(--s3); border-radius: var(--r2); background: var(--surface); box-shadow: var(--sh1); transition: box-shadow var(--d2) var(--ease), transform var(--d2) var(--ease); }
+.use:hover { box-shadow: var(--sh2); transform: translateY(-2px); }
+.use img { width: 48px; height: 48px; border-radius: 12px; object-fit: cover; }
+.use b { display: block; font-size: 17px; } .use span { display: block; margin-top: 4px; font-size: 15px; color: var(--t2); }
+
+/* ── 8. 원칙 ── */
+.rules { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s3); margin-top: var(--s10); }
+.rule { padding: var(--s5) var(--s4); border-radius: var(--r3); background: var(--surface); box-shadow: var(--sh1); display: flex; flex-direction: column; }
+.rule .n { font-size: clamp(48px, 5vw, 72px); font-weight: 500; line-height: 1; letter-spacing: -.05em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.rule h3 { margin-top: var(--s4); font-size: 22px; line-height: 1.35; letter-spacing: -.02em; }
+.rule p { margin-top: 12px; font-size: 15.5px; color: var(--t2); }
+
+/* ── 9. 시작 방법 ── */
+.plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s3); margin-top: var(--s10); }
+.plan { padding: var(--s5) var(--s4); border-radius: var(--r3); background: var(--surface); box-shadow: var(--sh1); display: flex; flex-direction: column; }
+.plan.main { background: var(--t1); color: #fff; box-shadow: var(--sh2); }
+.plan h3 { font-size: 24px; } .plan .for { margin-top: 8px; font-size: 15px; color: var(--t3); } .plan.main .for { color: rgba(255,255,255,.66); }
+.plan ul { list-style: none; margin: var(--s4) 0; padding: var(--s4) 0 0; border-top: 1px solid var(--line); display: grid; gap: 12px; font-size: 15px; color: var(--t2); }
+.plan.main ul { border-color: rgba(255,255,255,.14); color: rgba(255,255,255,.82); }
+.plan li { display: flex; gap: 10px; } .plan li::before { content: ""; flex: none; width: 6px; height: 6px; margin-top: 9px; border-radius: 50%; background: var(--accent); } .plan.main li::before { background: #9DB0FF; }
+.plan .btn { margin-top: auto; }
+.plan .price { margin-top: var(--s3); font-size: 15px; font-weight: 500; }
+
+/* ── 10. FAQ ── */
+.faq .grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: var(--s10); }
+.faq details { border-bottom: 1px solid var(--line); }
+.faq details:first-child { border-top: 1px solid var(--line); }
+.faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: var(--s2); padding: 22px 0; font-size: 18px; font-weight: 500; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: ""; flex: none; width: 12px; height: 12px; background: linear-gradient(currentColor, currentColor) center/12px 1.5px no-repeat, linear-gradient(currentColor, currentColor) center/1.5px 12px no-repeat; color: var(--t3); transition: transform var(--d2) var(--ease); }
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq details p { padding: 0 0 22px; font-size: 16px; color: var(--t2); max-width: 640px; }
+
+/* ── 11. 마지막 CTA (어두운 구간) ── */
+.final { position: relative; overflow: hidden; background: var(--night); color: var(--on-night); padding-block: 0; }
+.final video, .final .poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(.7); }
+.final .shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,13,18,.82), rgba(11,13,18,.7) 50%, rgba(11,13,18,.9)); }
+.final .in { position: relative; z-index: 2; text-align: center; padding-block: var(--s18); }
+.final .eyebrow { color: #9DB0FF; }
+.final h2 { margin-top: var(--s2); font-size: var(--f-h2); letter-spacing: -.04em; line-height: 1.12; }
+.final .lead { margin: var(--s3) auto 0; color: var(--on-night-2); }
+.ask { display: flex; gap: 8px; width: min(620px, 100%); margin: var(--s5) auto 0; padding: 6px; border-radius: 999px; background: rgba(255,255,255,.1); box-shadow: inset 0 0 0 1px rgba(255,255,255,.22); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.ask input { flex: 1; min-width: 0; height: 48px; padding: 0 20px; border: 0; background: none; color: #fff; font: 400 16px var(--sans); }
+.ask input::placeholder { color: rgba(255,255,255,.6); }
+.ask input:focus { outline: none; }
+.glow-btn { position: relative; isolation: isolate; }
+.glow-btn canvas { position: absolute; left: -60px; top: -60px; width: calc(100% + 120px); height: calc(100% + 120px); z-index: -1; pointer-events: none; }
+.ask-note { min-height: 24px; margin-top: var(--s2); font-size: 14px; color: var(--on-night-2); }
+
+/* 푸터 */
+footer.site { background: var(--night); color: var(--on-night-2); padding-block: var(--s8) var(--s5); border-top: 1px solid rgba(255,255,255,.08); }
+footer .cols { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: var(--s4); }
+footer h6 { margin: 0 0 14px; font-size: 14px; font-weight: 600; color: #fff; }
+footer a { display: block; padding: 4px 0; font-size: 15px; text-decoration: none; color: var(--on-night-2); } footer a:hover { color: #fff; }
+footer .brand { color: #fff; }
+footer .legal { margin-top: var(--s8); padding-top: var(--s3); border-top: 1px solid rgba(255,255,255,.08); display: grid; gap: 8px; font-size: 13px; color: rgba(243,244,247,.5); }
+
+/* ── 등장 모션: 내용은 항상 보이고, JS가 확인한 요소만 300ms 동안 살짝 떠오른다 ── */
+.in-view { animation: up var(--d3) var(--ease) both; }
+@keyframes up { from { opacity: .001; transform: translateY(16px); } }
+.mask-in img { animation: unmask 700ms var(--ease) both; }
+@keyframes unmask { from { clip-path: inset(14% 0 0 0); transform: scale(1.08); } }
+.split .w { display: inline-block; white-space: nowrap; } .split .ch { display: inline-block; }
+.split.go .ch { animation: up 420ms var(--ease) both; animation-delay: calc(var(--i) * 14ms); }
+
+/* 커스텀 커서·마그네틱 (마우스 화면에서만) */
+.cur, .cur-dot { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  .cur, .cur-dot { display: block; position: fixed; z-index: 100; left: 0; top: 0; pointer-events: none; border-radius: 50%; opacity: 0; transition: opacity var(--d2); }
+  .cur.live, .cur-dot.live { opacity: 1; }
+  .cur { width: 32px; height: 32px; margin: -16px 0 0 -16px; box-shadow: inset 0 0 0 1px rgba(15,17,21,.4); transition: opacity var(--d2), width var(--d2) var(--ease), height var(--d2) var(--ease), margin var(--d2) var(--ease), background var(--d2), box-shadow var(--d2); }
+  .cur-dot { width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; background: var(--t1); }
+  .cur.big { width: 60px; height: 60px; margin: -30px 0 0 -30px; background: rgba(61,90,254,.1); box-shadow: inset 0 0 0 1px rgba(61,90,254,.35); }
+  .cur.dark { box-shadow: inset 0 0 0 1px rgba(255,255,255,.55); } .cur-dot.dark { background: #fff; }
+}
+
+/* ── 시안 L: 실사 3D ── */
+#ring { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+.hero-in { z-index: 3; }
+.hero h1, .hero .lead, .hero .eyebrow { text-shadow: 0 2px 30px rgba(11,13,18,.75); }
+.hero .shade { background: radial-gradient(60% 46% at 50% 44%, rgba(11,13,18,.72), rgba(11,13,18,.2) 70%), linear-gradient(180deg, rgba(11,13,18,.55), rgba(11,13,18,.25) 45%, rgba(11,13,18,.95)); }
+#net { z-index: 2; opacity: .55; pointer-events: none; }
+.ocard { width: 230px; margin: -153px 0 0 -115px; padding: 0; border-radius: 18px; box-shadow: 0 30px 60px -24px rgba(15,17,21,.45); background: #222; }
+.ocard img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
+.ocard figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 40px 16px 14px; background: linear-gradient(transparent, rgba(11,13,18,.78)); color: #fff; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.ocard figcaption b { font-size: 15px; font-weight: 600; } .ocard figcaption span { font-size: 12px; opacity: .8; white-space: nowrap; }
+.orbit-wrap { height: 700px; margin-top: var(--s6); }
+.core { width: 260px; }
+/* 스크롤 사진 터널 */
+.tunnel { position: relative; height: 320vh; padding: 0; background: var(--night); }
+.tunnel .pin { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+#tunnel { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tunnel .cap { position: absolute; z-index: 2; left: 0; right: 0; bottom: 10vh; text-align: center; color: var(--on-night); pointer-events: none; }
+.tunnel .cap .eyebrow { color: #9DB0FF; }
+.tunnel .cap h2 { margin-top: var(--s2); font-size: var(--f-h2); letter-spacing: -.04em; line-height: 1.14; text-shadow: 0 2px 30px rgba(11,13,18,.8); }
+.tunnel .cap p { margin-top: var(--s2); color: var(--on-night-2); text-shadow: 0 2px 20px rgba(11,13,18,.8); }
+.tunnel .bar3 { position: absolute; z-index: 2; left: 50%; bottom: 5vh; width: 160px; height: 2px; margin-left: -80px; background: rgba(255,255,255,.18); border-radius: 2px; overflow: hidden; }
+.tunnel .bar3 i { display: block; height: 100%; width: 0; background: #9DB0FF; }
+/* 사진 빛 반사 */
+.stage .photo { position: relative; transform-style: preserve-3d; transition: transform var(--d3) var(--ease); will-change: transform; }
+.stage .photo::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity var(--d3); background: radial-gradient(400px circle at var(--gx, 50%) var(--gy, 50%), rgba(255,255,255,.35), transparent 60%); mix-blend-mode: soft-light; }
+.stage:hover .photo::after { opacity: 1; }
+.skew { transition: transform 500ms var(--ease); }
+
+/* 시안 M: 어두운 구간은 깊은 남색 + 은은한 빛, 히어로 하단은 부드럽게 다음 구간으로 */
+footer.site { background: #0A0E1A; }
+.hero, .final, .tunnel { background: radial-gradient(80% 60% at 70% 20%, rgba(61,90,254,.22), transparent 60%), radial-gradient(70% 60% at 15% 90%, rgba(80,120,255,.14), transparent 60%), linear-gradient(180deg, #0B1022, #0A0E1A); }
+.hero .poster { filter: blur(2px) saturate(.8) brightness(.8); opacity: .55; }
+.kb-slow { animation: kbs 30s ease-in-out infinite alternate; } @keyframes kbs { to { transform: scale(1.14) translate(-1.5%, -1%); } }
+#ring { -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent 98%); mask-image: linear-gradient(180deg, #000 70%, transparent 98%); }
+.hero::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 220px; z-index: 4; pointer-events: none; background: linear-gradient(180deg, rgba(247,247,245,0) 0%, rgba(247,247,245,.04) 35%, rgba(247,247,245,.55) 75%, var(--bg) 100%); }
+.final .poster { opacity: .35; filter: saturate(.7) brightness(.8); }
+.final .shade { background: linear-gradient(180deg, rgba(11,16,34,.75), rgba(11,16,34,.55) 50%, rgba(11,16,34,.9)); }
+.orbit-sec .sec-head { position: relative; z-index: 30; padding-bottom: var(--s4); }
+.orbit-wrap { margin-top: var(--s6); height: 600px; overflow: visible; } .orbit-sec { padding-bottom: var(--s12); }
+.ocard figcaption b { font-size: 14px; }
+.marquee { position: relative; z-index: 5; }
+
+/* 사진 색감 통일 */
+.stage .photo img, .problem figure img, .ocard img, .use img { filter: saturate(.78) contrast(1.04); }
+.stage .photo::before, .problem figure::before { content: ""; position: absolute; inset: 0; z-index: 1; background: rgba(61,90,254,.05); pointer-events: none; }
+.problem figure { position: relative; }
+
+/* ── 반응형 ── */
+@media (max-width: 1080px) {
+  .feat, .feat.rev { grid-template-columns: 1fr; gap: var(--s6); } .feat.rev .ftxt { order: 0; }
+  .problem .grid, .uses .grid, .faq .grid { grid-template-columns: 1fr; gap: var(--s6); }
+  .problem figure { aspect-ratio: 16/10; }
+  .how .layout { grid-template-columns: 1fr; }
+  .board { display: none; }
+  .steps li { min-height: 0; padding: var(--s3) 0 var(--s3) var(--s3); }
+  .steps li h3 { color: var(--t1); }
+  .rules, .plans { grid-template-columns: 1fr; }
+  footer .cols { grid-template-columns: 1fr 1fr; }
+  .sphere-box { max-width: 560px; width: 100%; margin: 0 auto; }
+}
+@media (max-width: 820px) {
+  section { padding-block: var(--s12); }
+  .menu, .nav .btn { display: none; } .burger { display: block; }
+  .wrap { padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+  .hero-in { padding-block: 120px 88px; }
+  .hero .ctas { flex-direction: column; align-items: stretch; max-width: 320px; margin-left: auto; margin-right: auto; }
+  .stage .ui { margin: -30% 3% 0; }
+  .orbit-wrap { height: 520px; }
+  .ocard { width: 150px; margin: -100px 0 0 -75px; } .ocard figcaption { padding: 28px 10px 10px; } .ocard figcaption span { display: none; } .orbit-wrap { height: 560px; }
+  .ocard p { display: none; }
+  .core { width: 220px; padding: var(--s2); } .core p { font-size: 15.5px; }
+  .boards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 12px; }
+  .phone { padding: 5px; border-radius: 14px; } .phone .in { padding: 8px 6px; gap: 5px; font-size: 9px; } .phone .tt { font-size: 10.5px; }
+  .ring { width: 54px; height: 54px; } .ring i { width: 40px; height: 40px; font-size: 10px; }
+  .comment { display: none; }
+  .roles { flex-wrap: wrap; }
+  .ui-bar .crumb { display: none; } .ui-bar b { white-space: nowrap; }
+  .ask { background: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; padding: 0; gap: 10px; }
+  .ask input { flex: none; height: 52px; border-radius: 999px; background: rgba(255,255,255,.1); box-shadow: inset 0 0 0 1px rgba(255,255,255,.22); }
+  .diff { font-size: 11px; } .diff .ln { grid-template-columns: 26px 12px 1fr; padding: 0 12px; }
+  .req { grid-template-columns: 52px 1fr; } .req .badge { display: none; }
+  .ask { flex-direction: column; border-radius: 22px; } .ask .btn { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .track { animation: none; } .in-view, .mask-in img, .split.go .ch, .scene.on { animation: none; } .badge.live::before { animation: none; } }
+</style>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="brand" href="#top">SYNAPSE</a>
+    <nav class="menu" aria-label="주 메뉴"><a href="#features">기능</a><a href="#team">AI 팀</a><a href="#how">작동 방식</a><a href="#uses">활용</a><a href="#faq">FAQ</a></nav>
+    <a class="btn primary" href="#final">프로젝트 시작</a>
+    <button class="burger" id="burger" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="drawer"><i></i><i></i></button>
+  </div>
+</header>
+<nav class="drawer" id="drawer" hidden aria-label="모바일 메뉴"><a href="#features">기능</a><a href="#team">AI 팀</a><a href="#how">작동 방식</a><a href="#uses">활용</a><a href="#faq">FAQ</a><a href="#final">프로젝트 시작</a></nav>
+<div class="cur" id="cur" aria-hidden="true"></div><div class="cur-dot" id="curDot" aria-hidden="true"></div>
+
+<main id="top">
+  <!-- 1. 히어로 -->
+  <section class="hero" id="hero" aria-label="소개">
+    <img class="poster kb-slow" id="heroV" src="media/115655.jpg" alt="">
+    <div class="shade"></div>
+    <canvas id="ring" aria-hidden="true"></canvas>
+    <canvas id="net" aria-hidden="true"></canvas>
+    <div class="wrap hero-in">
+      <p class="eyebrow">AI DEVELOPMENT PLATFORM</p>
+      <h1 id="h1"><span class="l1">생각한 모든 것을</span><span class="l2">실제 제품으로</span></h1>
+      <p class="lead">말로 설명한 아이디어를 역할을 나눈 AI 팀이 기획하고, 디자인하고, 만들고, 서로 검토합니다. 마지막 결정은 당신이 합니다.</p>
+      <div class="ctas"><a class="btn primary mag" href="#final">프로젝트 시작 <span class="ar" aria-hidden="true">→</span></a><a class="btn glass mag" href="#features">둘러보기</a></div>
+      <p class="proof"><span>코딩 지식 없이 시작</span><span>역할별 AI 팀</span><span>사람의 최종 승인</span></p>
+    </div>
+  </section>
+
+  <!-- 2. 키워드 띠 -->
+  <div class="marquee" aria-label="만들 수 있는 것: 웹사이트, 웹 서비스, 모바일 앱, 업무 도구, 데이터 대시보드, 게임">
+    <div class="track" aria-hidden="true">
+      <span>웹사이트</span><span>웹 서비스</span><span>모바일 앱</span><span>업무 도구</span><span>데이터 대시보드</span><span>예약 시스템</span><span>쇼핑몰</span><span>게임</span>
+      <span>웹사이트</span><span>웹 서비스</span><span>모바일 앱</span><span>업무 도구</span><span>데이터 대시보드</span><span>예약 시스템</span><span>쇼핑몰</span><span>게임</span>
+    </div>
+  </div>
+
+  <!-- 3. 문제 제기 -->
+  <section class="problem" aria-labelledby="pb">
+    <div class="wrap grid">
+      <div>
+        <p class="eyebrow rv">THE PROBLEM</p>
+        <h2 class="h2 split" id="pb">아이디어는 있는데 만들 방법이 막막합니다</h2>
+        <p class="lead rv">제품 하나를 만들려면 기획자, 디자이너, 개발자가 필요하고, 그 사이에서 결과물을 옮기고 확인하는 일이 끝없이 이어집니다.</p>
+        <ul class="pains">
+          <li class="rv"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3 2.2-5 5-5s5 2 5 5M14.5 19c.3-2.2 1.7-3.6 3.5-3.6 1.6 0 2.8 1 3 3"/></svg></span><div><b>사람마다 다른 도구와 언어</b><span>요구사항, 디자인, 코드가 서로 다른 곳에 흩어집니다</span></div></li>
+          <li class="rv"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 12h6M14 12h6M10 9l-3 3 3 3M14 9l3 3-3 3"/></svg></span><div><b>단계마다 끊기는 맥락</b><span>앞에서 정한 내용을 다음 사람에게 다시 설명합니다</span></div></li>
+          <li class="rv"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v4.5M12 16h.01"/></svg></span><div><b>확인할 수 없는 변경</b><span>무엇이 바뀌었고 누가 검토했는지 알기 어렵습니다</span></div></li>
+        </ul>
+      </div>
+      <figure class="rv mask"><img src="media/16323580.jpg" alt="여러 모니터에 코드를 띄워 놓고 일하는 개발자" loading="lazy"></figure>
+    </div>
+  </section>
+
+  <!-- 4. 핵심 기능 4개 -->
+  <section id="features" aria-labelledby="ft" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head center">
+        <p class="eyebrow rv">FEATURES</p>
+        <h2 class="h2 split" id="ft">말 한마디에서 승인된 코드까지</h2>
+        <p class="lead rv">SYNAPSE는 제품을 만드는 전 과정을 하나의 프로젝트 안에서 이어 줍니다.</p>
+      </div>
+      <div class="feats">
+        <!-- 요구사항 정의 -->
+        <article class="feat">
+          <div class="ftxt rv">
+            <p class="num">01 · 요구사항 정의</p>
+            <h3>쉬운 말로 설명하면 요구사항이 됩니다</h3>
+            <p>팀장 AI가 질문을 이어 가며 기능, 화면, 우선순위를 정리합니다. 정리된 목록이 이후 모든 단계의 기준이 됩니다.</p>
+            <ul><li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>대화로 범위와 우선순위를 정합니다</li><li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>필수 기능과 다음 버전을 나눠 관리합니다</li></ul>
+          </div>
+          <div class="stage rv">
+            <div class="photo mask"><img src="media/12969403.jpg" alt="노트북 화면의 대시보드" loading="lazy"></div>
+            <div class="ui tilt" role="img" aria-label="요구사항 정의 화면: 사용자의 요청과 팀장 AI가 정리한 요구사항 목록">
+              <div class="ui-bar"><span class="dot">S</span><b>요구사항 정의</b><span class="crumb">/ 운동 기록 앱</span><span class="right"><span class="badge live ac">팀장 AI 작성 중</span></span></div>
+              <div class="chat">
+                <div class="msg me"><span class="av me">나</span><p class="bub">운동을 기록하면 AI가 코칭해 주는 앱을 만들고 싶어요</p></div>
+                <div class="msg ai"><span class="av lead-ai">팀</span><p class="bub" id="typer">기록할 운동 종류와 코칭 방식을 정리했어요. 우선순위를 확인해 주세요.</p></div>
+              </div>
+              <div class="reqs">
+                <div class="h"><span>요구사항 4개</span><span>최종 수정 방금</span></div>
+                <div class="req"><code>REQ-01</code><span>운동 종류별 기록 입력</span><span class="badge ac">필수</span></div>
+                <div class="req"><code>REQ-02</code><span>주간 운동 시간 요약</span><span class="badge ac">필수</span></div>
+                <div class="req"><code>REQ-03</code><span>기록 기반 코칭 메시지</span><span class="badge">다음 버전</span></div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- AI 팀 토론 -->
+        <article class="feat rev">
+          <div class="ftxt rv">
+            <p class="num">02 · AI 팀 협업</p>
+            <h3>역할을 나눈 AI들이 근거를 두고 논의합니다</h3>
+            <p>팀장, 설계자, 검토자, 시험관이 각자의 관점에서 의견을 내고, 결론과 근거가 프로젝트에 기록으로 남습니다.</p>
+            <ul><li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>누가 어떤 판단을 했는지 한눈에 봅니다</li><li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>합의된 결론만 다음 단계로 넘어갑니다</li></ul>
+          </div>
+          <div class="stage rv">
+            <div class="photo mask"><img style="object-position:center 30%" src="media/7988748.jpg" alt="밝은 사무실에서 화면을 함께 보며 검토하는 팀" loading="lazy"></div>
+            <div class="ui tilt" role="img" aria-label="AI 팀 토론 화면: 설계자와 검토자의 의견, 팀장의 결론">
+              <div class="ui-bar"><span class="dot">S</span><b>AI 팀 논의</b><span class="crumb">/ 기록 저장 방식</span><span class="right"><span class="badge ok">합의됨</span></span></div>
+              <div class="roles"><span class="role"><span class="av lead-ai">팀</span>팀장</span><span class="role"><span class="av arch">설</span>설계자</span><span class="role"><span class="av rev">검</span>검토자</span><span class="role"><span class="av test">시</span>시험관</span></div>
+              <div class="thread">
+                <div class="post"><span class="av arch">설</span><div><p class="who"><b>설계자</b>2분 전</p><p>기록은 기기에 먼저 저장하고 연결되면 서버와 맞추는 방식을 제안합니다.</p></div></div>
+                <div class="post"><span class="av rev">검</span><div><p class="who"><b>검토자</b>1분 전</p><p>동기화 중 충돌이 나면 어떤 기록을 남길지 기준이 필요합니다.</p><span class="ref">REQ-01 운동 종류별 기록 입력</span></div></div>
+              </div>
+              <div class="decision"><span><b>팀장 결론</b> 최신 수정 기준으로 합치고 충돌 기록은 보관</span><button class="mini primary" type="button" tabindex="-1">확인</button></div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 디자인 시안 -->
+        <article class="feat">
+          <div class="ftxt rv">
+            <p class="num">03 · 디자인 시안</p>
+            <h3>개발 전에 화면을 보고 확정합니다</h3>
+            <p>설계자가 만든 화면 시안을 직접 보고 의견을 남깁니다. 시안이 확정되기 전에는 개발이 시작되지 않습니다.</p>
+            <ul><li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>화면마다 의견을 남기고 수정합니다</li><li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>확정된 시안이 개발의 기준이 됩니다</li></ul>
+          </div>
+          <div class="stage rv">
+            <div class="photo mask"><img src="media/36747234.jpg" alt="모니터에 화면 디자인을 띄워 놓고 작업하는 디자이너" loading="lazy"></div>
+            <div class="ui tilt" role="img" aria-label="디자인 시안 화면: 홈, 기록 입력, 주간 요약 세 화면과 의견">
+              <div class="ui-bar"><span class="dot">S</span><b>디자인 시안</b><span class="crumb">/ 6개 중 3개</span><span class="right"><span class="badge ok">2개 확정</span></span></div>
+              <div class="boards">
+                <div class="scr"><div class="phone"><div class="in"><span class="mut">11월 20일 목요일</span><span class="tt">오늘의 운동</span><div class="ring"><i>72%</i></div><div class="li"><span>스쿼트</span><b>4세트</b></div><div class="li"><span>러닝</span><b>5.2km</b></div><div class="cta-m">기록 추가</div></div></div><p class="scr-cap"><span>홈</span><span class="badge ok">확정</span></p></div>
+                <div class="scr"><div class="phone"><div class="in"><span class="tt">기록 입력</span><div class="chips"><span class="on">근력</span><span>유산소</span><span>스트레칭</span></div><div class="fld"><b>운동</b>스쿼트</div><div class="fld"><b>세트 · 횟수</b>4세트 · 12회</div><div class="fld"><b>메모</b>무릎 각도 주의</div><div class="cta-m">저장</div></div></div><p class="scr-cap"><span>기록</span><span class="badge ok">확정</span></p></div>
+                <div class="scr"><div class="phone"><div class="in"><span class="tt">주간 요약</span><span class="mut">이번 주 운동 시간</span><b style="font-size:16px">4시간 20분</b><div class="mbars"><i style="height:40%"></i><i style="height:62%"></i><i style="height:35%"></i><i style="height:80%"></i><i class="hi" style="height:96%"></i><i style="height:52%"></i><i style="height:28%"></i></div><div class="li"><span>코칭</span><b>휴식 1일 권장</b></div></div></div><p class="scr-cap"><span>요약</span><span class="badge warn">의견 1</span></p></div>
+              </div>
+              <div class="comment"><small>나 · 의견</small>그래프를 월간으로도 볼 수 있게 해 주세요</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- PR 교차 검토 -->
+        <article class="feat rev">
+          <div class="ftxt rv">
+            <p class="num">04 · 교차 검토와 승인</p>
+            <h3>만든 AI는 자기 코드를 승인하지 않습니다</h3>
+            <p>개발한 AI와 다른 검토자와 시험관이 변경 사항을 확인합니다. 프로젝트에 반영할지는 사람이 승인해서 결정합니다.</p>
+            <ul><li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>변경 내용과 검토 의견을 함께 봅니다</li><li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>승인한 변경만 반영됩니다</li></ul>
+          </div>
+          <div class="stage rv">
+            <div class="photo mask"><img src="media/1181675.jpg" alt="여러 모니터에 코드가 띄워진 개발 책상" loading="lazy"></div>
+            <div class="ui tilt" role="img" aria-label="코드 교차 검토 화면: 변경 내용, 검토자 의견, 시험 통과, 승인 버튼">
+              <div class="pr-head"><h5>기록 저장 시 입력값 검증 추가</h5><p>설계자 AI가 요청 · 변경 파일 3개 · +24 −6</p><div class="checks"><span class="badge ok">시험 18개 통과</span><span class="badge ok">검토자 승인</span><span class="badge warn">사람 승인 대기</span></div></div>
+              <div class="diff">
+                <div class="f"><span>workout/save.ts</span><span>+3 −1</span></div>
+                <div class="ln"><span>12</span><span></span><span>export async function saveWorkout(entry) {</span></div>
+                <div class="ln del"><span>13</span><span>−</span><span>  await db.insert(entry)</span></div>
+                <div class="ln add"><span>13</span><span>+</span><span>  if (!isValid(entry)) throw new InputError()</span></div>
+                <div class="ln add"><span>14</span><span>+</span><span>  await db.insert(normalize(entry))</span></div>
+              </div>
+              <div class="rv-box"><div class="top"><span class="av rev" style="width:26px;height:26px;font-size:11px">검</span><b>검토자</b><span class="badge ok">해결됨</span></div><p>세트 수가 0이거나 비어 있으면 저장되지 않도록 검증을 추가했습니다.</p></div>
+              <div class="approve-row"><span>반영하려면 승인이 필요합니다</span><span style="display:flex;gap:8px"><button class="mini" type="button" tabindex="-1">변경 보기</button><button class="mini primary" type="button" tabindex="-1">승인하고 반영</button></span></div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 스크롤 사진 터널 -->
+  <section class="tunnel" id="moments" aria-label="아이디어가 제품이 되는 과정을 담은 사진들">
+    <div class="pin">
+      <canvas id="tunnel" aria-hidden="true"></canvas>
+      <div class="cap wrap"><p class="eyebrow">FROM IDEA TO PRODUCT</p><h2>아이디어 한 문장에서 동작하는 화면까지</h2><p>스크롤하면 아이디어가 제품이 되는 과정 속으로 들어갑니다</p></div>
+      <div class="bar3"><i id="tbar"></i></div>
+    </div>
+  </section>
+
+  <!-- 5. AI 팀 궤도 -->
+  <section class="orbit-sec" id="team" aria-labelledby="tm">
+    <div class="wrap">
+      <div class="sec-head center"><p class="eyebrow rv">AI TEAM</p><h2 class="h2 split" id="tm">아이디어 하나에 AI 팀이 모입니다</h2><p class="lead rv">가운데의 아이디어를 중심으로 역할별 AI와 결과물이 함께 움직입니다. 마우스를 움직이면 궤도가 기울어집니다.</p></div>
+    </div>
+    <div class="orbit-wrap" id="orbitWrap" aria-label="아이디어를 중심으로 팀장, 설계자, 검토자, 시험관 AI와 요구사항, 디자인 시안, 코드 검토, 미리보기 결과물이 도는 그림">
+      <div class="core"><div class="glow"></div><p class="k">IDEA</p><p>“운동을 기록하면 AI가 코칭해 주는 앱”</p></div>
+      <div class="orbit" id="orbit">
+        <figure class="ocard"><img src="media/ui_1.jpg" alt=""><figcaption><b>팀장</b><span>요구사항 정의</span></figcaption></figure>
+        <figure class="ocard"><img src="media/c_2105927.jpg" alt=""><figcaption><b>AI 모델</b></figcaption></figure>
+        <figure class="ocard"><img src="media/ui_2.jpg" alt=""><figcaption><b>설계자</b><span>AI 팀 논의</span></figcaption></figure>
+        <figure class="ocard"><img src="media/ui_3.jpg" alt=""><figcaption><b>디자인 시안</b><span>6개 확정</span></figcaption></figure>
+        <figure class="ocard"><img src="media/c_1181320.jpg" alt=""><figcaption><b>프로젝트 환경</b></figcaption></figure>
+        <figure class="ocard"><img src="media/ui_4.jpg" alt=""><figcaption><b>검토자</b><span>교차 검토</span></figcaption></figure>
+        <figure class="ocard"><img src="media/ui_7.jpg" alt=""><figcaption><b>시험관</b><span>18개 통과</span></figcaption></figure>
+        <figure class="ocard"><img src="media/ui_5.jpg" alt=""><figcaption><b>미리보기</b><span>동작하는 앱</span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. 작동 방식 -->
+  <section class="how" id="how" aria-labelledby="hw">
+    <div class="wrap">
+      <div class="sec-head"><p class="eyebrow rv">HOW IT WORKS</p><h2 class="h2 split" id="hw">다섯 단계가 끊기지 않고 이어집니다</h2></div>
+      <div class="layout">
+        <ol class="steps" id="steps">
+          <li class="on" data-i="0"><span class="sn">01</span><h3>아이디어 설명</h3><p>만들고 싶은 것을 평소 말투로 설명합니다. 팀장 AI가 질문하며 빈 곳을 채웁니다.</p><p class="out">결과물 <b>요구사항 목록</b></p></li>
+          <li data-i="1"><span class="sn">02</span><h3>디자인 확정</h3><p>설계자가 만든 화면 시안을 보고 고칩니다. 확정해야 다음으로 넘어갑니다.</p><p class="out">결과물 <b>확정된 화면 시안</b></p></li>
+          <li data-i="2"><span class="sn">03</span><h3>개발</h3><p>확정된 시안을 기준으로 실제 동작하는 코드를 만들고 미리보기로 보여 줍니다.</p><p class="out">결과물 <b>동작하는 미리보기</b></p></li>
+          <li data-i="3"><span class="sn">04</span><h3>교차 검토와 시험</h3><p>만든 AI가 아닌 검토자와 시험관이 변경을 확인합니다.</p><p class="out">결과물 <b>검토 기록과 시험 결과</b></p></li>
+          <li data-i="4"><span class="sn">05</span><h3>사람의 승인</h3><p>모든 변경은 승인 요청으로 올라오고, 반영은 당신이 결정합니다.</p><p class="out">결과물 <b>승인된 변경</b></p></li>
+        </ol>
+        <div class="board" aria-hidden="true">
+          <div class="ui">
+            <div class="ui-bar"><span class="dot">S</span><b>운동 기록 앱</b><span class="right"><span class="badge ac" id="stepBadge">1 / 5 단계</span></span></div>
+            <div class="prog" id="prog"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+            <div class="scene on"><p class="k">요구사항</p><h4>팀장 AI가 정리한 목록</h4><div class="sl"><span class="l"><b style="color:var(--accent)">REQ-01</b>운동 종류별 기록 입력</span><span class="badge ac">필수</span></div><div class="sl"><span class="l"><b style="color:var(--accent)">REQ-02</b>주간 운동 시간 요약</span><span class="badge ac">필수</span></div><div class="sl"><span class="l"><b style="color:var(--accent)">REQ-03</b>기록 기반 코칭 메시지</span><span class="badge">다음 버전</span></div></div>
+            <div class="scene"><p class="k">디자인 시안</p><h4>6개 중 6개 확정</h4><div class="sw"><div><b>홈</b><i class="s"></i><i></i><i class="a"></i></div><div><b>기록</b><i></i><i class="s"></i><i class="a"></i></div><div><b>요약</b><i class="s"></i><i></i><i class="a"></i></div></div></div>
+            <div class="scene"><p class="k">미리보기</p><h4>동작하는 앱</h4><div class="pv"><div class="url"><span>preview / 운동 기록 앱</span>데스크톱</div><div class="body"><div><p class="k">이번 주 운동 시간</p><p class="big">4시간 20분</p><div class="mbars" style="height:80px"><i style="height:40%"></i><i style="height:62%"></i><i style="height:35%"></i><i style="height:80%"></i><i class="hi" style="height:96%"></i><i style="height:52%"></i><i style="height:28%"></i></div></div><div><div class="sl" style="margin-top:0"><span>스쿼트</span><b>4세트</b></div><div class="sl"><span>러닝</span><b>5.2km</b></div></div></div></div></div>
+            <div class="scene"><p class="k">검토와 시험</p><h4>변경 3건 확인 완료</h4><div class="sl"><span class="l"><span class="av rev" style="width:28px;height:28px;font-size:11px">검</span>입력값 검증 추가 요청</span><span class="badge ok">해결</span></div><div class="sl"><span class="l"><span class="av test" style="width:28px;height:28px;font-size:11px">시</span>기록 저장 시험 18개</span><span class="badge ok">통과</span></div><div class="sl"><span class="l"><span class="av test" style="width:28px;height:28px;font-size:11px">시</span>빈 기록 화면 시험</span><span class="badge ok">통과</span></div></div>
+            <div class="scene"><p class="k">승인</p><h4>반영을 기다리는 변경</h4><div class="sl"><span class="l">기록 저장 시 입력값 검증 추가</span><span class="badge warn">승인 대기</span></div><div class="sl" style="background:var(--accent-soft)"><span class="l">검토자 승인 · 시험 통과</span><button class="mini primary" type="button" tabindex="-1">승인하고 반영</button></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. 연결망 구 + 활용 사례 -->
+  <section class="uses" id="uses" aria-labelledby="us" style="padding-top:0">
+    <div class="wrap grid">
+      <div>
+        <p class="eyebrow rv">FOR EVERYONE</p>
+        <h2 class="h2 split" id="us">사람의 아이디어와 AI가 이어지는 곳</h2>
+        <p class="lead rv">시냅스는 연결이라는 뜻입니다. 생각을 가진 사람과 만드는 AI가 하나의 프로젝트로 이어집니다.</p>
+        <ul class="use-list">
+          <li class="use rv"><img src="media/c_34804001.jpg" alt=""><div><b>창업자 · 1인 사업자</b><span>개발팀 없이 첫 번째 제품을 만들어 시장에 내놓습니다</span></div></li>
+          <li class="use rv"><img src="media/c_14851415.jpg" alt=""><div><b>기획자</b><span>머릿속 기획을 동작하는 화면으로 바로 확인합니다</span></div></li>
+          <li class="use rv"><img src="media/c_8204363.jpg" alt=""><div><b>작은 팀</b><span>적은 인원으로 기능을 빠르게 만들고 검증합니다</span></div></li>
+        </ul>
+      </div>
+      <div class="sphere-box rv" id="sphereBox"><canvas id="sphere" aria-label="작업 사진과 화면 타일이 빛의 선으로 이어진 연결망 구. 드래그해서 돌려 볼 수 있습니다" role="img"></canvas><span class="sphere-hint">드래그해서 돌려 보세요</span></div>
+    </div>
+  </section>
+
+  <!-- 8. 원칙 -->
+  <section aria-labelledby="pr" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head center"><p class="eyebrow rv">PRINCIPLES</p><h2 class="h2 split" id="pr">AI가 만들고 결정은 사람이 합니다</h2></div>
+      <div class="rules">
+        <article class="rule rv"><span class="n" data-count="4">4</span><h3>역할을 나눈 AI 팀</h3><p>팀장, 설계자, 검토자, 시험관이 각자 맡은 일만 합니다.</p></article>
+        <article class="rule rv"><span class="n" data-count="0">0</span><h3>만든 AI의 자기 승인</h3><p>코드를 만든 AI는 자기 변경을 승인할 수 없습니다.</p></article>
+        <article class="rule rv"><span class="n" data-count="1">1</span><h3>모든 반영 전 사람의 승인</h3><p>프로젝트에 들어가는 변경은 모두 당신이 확인합니다.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. 시작 방법 -->
+  <section aria-labelledby="pl" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head center"><p class="eyebrow rv">GET STARTED</p><h2 class="h2 split" id="pl">규모에 맞게 시작하는 방법</h2></div>
+      <div class="plans">
+        <article class="plan rv"><h3>개인</h3><p class="for">아이디어 하나로 시작하는 창업자와 1인 사업자</p><ul><li>요구사항 정의와 디자인 시안</li><li>AI 팀 협업과 교차 검토</li><li>동작하는 미리보기</li></ul><p class="price">요금은 정식 출시 때 안내</p><a class="btn ghost mag" href="#final" style="margin-top:24px">프로젝트 시작</a></article>
+        <article class="plan main rv"><h3>팀</h3><p class="for">여러 사람이 함께 확인하고 승인하는 팀</p><ul><li>개인의 모든 기능</li><li>팀원 초대와 역할별 승인</li><li>코드 저장소 연동</li></ul><p class="price">요금은 정식 출시 때 안내</p><a class="btn primary mag" href="#final" style="margin-top:24px">팀으로 시작</a></article>
+        <article class="plan rv"><h3>기업</h3><p class="for">내부 절차와 보안 기준이 있는 조직</p><ul><li>팀의 모든 기능</li><li>사내 도구 연동 상담</li><li>도입 지원</li></ul><p class="price">요금은 정식 출시 때 안내</p><a class="btn ghost mag" href="#final" style="margin-top:24px">도입 문의</a></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. FAQ -->
+  <section class="faq" id="faq" aria-labelledby="fq" style="padding-top:0">
+    <div class="wrap grid">
+      <div><p class="eyebrow rv">FAQ</p><h2 class="h2" id="fq">자주 묻는 질문</h2></div>
+      <div class="rv">
+        <details open><summary>코딩을 전혀 몰라도 쓸 수 있나요?</summary><p>네. 만들고 싶은 것을 평소 말투로 설명하면 팀장 AI가 질문하며 요구사항으로 정리합니다. 이후에는 시안과 미리보기를 보고 결정하면 됩니다.</p></details>
+        <details><summary>어떤 것을 만들 수 있나요?</summary><p>웹사이트, 웹 서비스, 모바일 앱, 업무 도구, 데이터 대시보드, 게임 같은 소프트웨어를 하나의 프로젝트로 만듭니다.</p></details>
+        <details><summary>AI가 만든 코드는 누가 확인하나요?</summary><p>코드를 만든 AI가 아닌 검토자와 시험관 AI가 확인하고 의견을 남깁니다. 반영 여부는 사용자가 승인해서 결정합니다.</p></details>
+        <details><summary>디자인이 마음에 들지 않으면 어떻게 하나요?</summary><p>시안 단계에서 화면마다 의견을 남겨 고칩니다. 시안이 확정되기 전에는 개발이 시작되지 않습니다.</p></details>
+        <details><summary>진행 상황은 어디서 확인하나요?</summary><p>프로젝트 화면에서 단계별 상태, AI별 작업 기록, 승인을 기다리는 변경을 한 번에 봅니다.</p></details>
+        <details><summary>요금은 어떻게 되나요?</summary><p>정식 출시 때 안내합니다.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. 마지막 CTA -->
+  <section class="final" id="final" aria-labelledby="fn">
+    <img class="poster" src="media/25461703.jpg" alt="">
+    <div class="shade"></div>
+    <div class="wrap in">
+      <p class="eyebrow">START A PROJECT</p>
+      <h2 id="fn">생각해 둔 아이디어를 말해 주세요</h2>
+      <p class="lead">한 문장이면 팀장 AI가 기획을 시작합니다.</p>
+      <form class="ask" id="ask" autocomplete="off"><label for="idea" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">만들고 싶은 것</label><input id="idea" type="text" placeholder="예: 운동 기록과 AI 코칭이 있는 앱"><button class="btn primary glow-btn" type="submit"><canvas id="sparks" aria-hidden="true"></canvas>프로젝트 시작 <span class="ar" aria-hidden="true">→</span></button></form>
+      <p class="ask-note" id="note" aria-live="polite"></p>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="cols">
+      <div><a class="brand" href="#top">SYNAPSE</a><p style="margin-top:12px;font-size:15px;max-width:280px">생각한 모든 것을 실제 제품으로 만드는 AI 개발 플랫폼</p></div>
+      <div><h6>제품</h6><a href="#features">요구사항 정의</a><a href="#features">AI 팀 협업</a><a href="#features">디자인 시안</a><a href="#features">교차 검토</a></div>
+      <div><h6>알아보기</h6><a href="#team">AI 팀</a><a href="#how">작동 방식</a><a href="#uses">활용</a><a href="#faq">FAQ</a></div>
+      <div><h6>시작하기</h6><a href="#final">프로젝트 시작</a></div>
+    </div>
+    <div class="legal"><span>페이지의 제품 화면은 설명을 위한 예시이며, 기능별 제공 범위는 단계적으로 확대됩니다.</span><span>사진: Pexels 무료 이미지 (출처 목록 별도 기록) · © 2026 SYNAPSE</span></div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+(() => {
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const fine = matchMedia("(hover: hover) and (pointer: fine)").matches && !reduce;
+const lerp = (a, b, t) => a + (b - a) * t;
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const onView = (el, fn, opt = { threshold: .15 }) => { const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { fn(); io.disconnect(); } }, opt); io.observe(el); };
+
+// 내비게이션: 히어로(어두움)를 지나면 밝은 바
+const nav = $("#nav"), hero = $("#hero");
+new IntersectionObserver(([e]) => nav.classList.toggle("light", !e.isIntersecting), { rootMargin: "-72px 0px 0px 0px" }).observe(hero);
+const burger = $("#burger"), drawer = $("#drawer");
+burger.addEventListener("click", () => { const o = drawer.hidden; drawer.hidden = !o; burger.setAttribute("aria-expanded", String(o)); });
+drawer.addEventListener("click", (e) => { if (e.target.closest("a")) { drawer.hidden = true; burger.setAttribute("aria-expanded", "false"); } });
+
+// 영상: 동작 줄이기면 사진만, 마지막 CTA 영상은 보일 때만 재생
+const hv = $("#heroV");
+
+// 등장 모션: 내용은 처음부터 보인다. 아래쪽 요소는 화면에 들어올 때 300ms 짧게 떠오르기만 한다
+if (!reduce) {
+  $$(".rv").forEach((el) => { if (el.getBoundingClientRect().top > innerHeight) onView(el, () => el.classList.add("in-view")); });
+  $$(".mask").forEach((el) => { if (el.getBoundingClientRect().top > innerHeight) onView(el, () => el.classList.add("mask-in")); });
+}
+// 큰 문구는 글자 단위로
+$$(".split").forEach((h) => { const t = h.textContent; h.setAttribute("aria-label", t); let i = 0; h.innerHTML = t.split(" ").map((w) => `<span class="w" aria-hidden="true">${[...w].map((c) => `<span class="ch" style="--i:${i++}">${c}</span>`).join("")}</span>`).join(" ");
+  if (!reduce && h.getBoundingClientRect().top > innerHeight) onView(h, () => h.classList.add("go"), { threshold: .5 }); });
+
+// 요구사항 말풍선: 화면에 들어오면 타이핑
+const typer = $("#typer");
+if (typer && !reduce) { const full = typer.textContent; onView(typer, () => { typer.textContent = ""; typer.classList.add("typing"); let k = 0; const step = () => { typer.textContent = full.slice(0, ++k); if (k < full.length) setTimeout(step, 24); else typer.classList.remove("typing"); }; setTimeout(step, 250); }, { threshold: .8 }); }
+
+// 숫자 카운트업
+$$("[data-count]").forEach((el) => onView(el, () => { const to = +el.dataset.count; if (reduce || !to) return; const t0 = performance.now(); el.textContent = 0;
+  const tick = (n) => { const p = Math.min(1, (n - t0) / 800); el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(tick); }; requestAnimationFrame(tick); }, { threshold: .6 }));
+
+// 작동 방식: 가운데에 온 단계로 오른쪽 화면을 바꾼다
+const stepEls = $$("#steps li"), scenes = $$(".board .scene"), bars = $$("#prog i");
+const setStep = (i) => { stepEls.forEach((l, k) => l.classList.toggle("on", k === i)); scenes.forEach((s, k) => s.classList.toggle("on", k === i)); bars.forEach((b, k) => b.classList.toggle("on", k <= i)); $("#stepBadge").textContent = `${i + 1} / 5 단계`; };
+const sio = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) setStep(+e.target.dataset.i); }), { rootMargin: "-48% 0px -48% 0px" });
+stepEls.forEach((l) => sio.observe(l));
+
+// 시작 폼
+$("#ask").addEventListener("submit", (e) => { e.preventDefault(); const v = $("#idea").value.trim();
+  $("#note").textContent = v ? `"${v}" 시안 페이지라 실제 프로젝트 생성으로 연결되지 않습니다` : "한 문장이면 팀장 AI가 기획을 시작합니다"; });
+
+// ── AI 팀 궤도: 카드가 3D 원 궤도를 돈다. 마우스 위치에 따라 기울기와 속도가 바뀐다 ──
+const orbit = $("#orbit"), owrap = $("#orbitWrap"), cards = $$(".ocard", orbit);
+const O = { tiltT: -18, tilt: -18, yaw: 0, spdT: 1, spd: 1, rollT: 0, roll: 0, on: false };
+const radius = () => Math.min(innerWidth * (innerWidth < 820 ? .34 : .28), 400);
+new IntersectionObserver(([e]) => (O.on = e.isIntersecting)).observe(owrap);
+if (fine) { owrap.addEventListener("pointermove", (e) => { const r = owrap.getBoundingClientRect(), nx = (e.clientX - r.left) / r.width - .5, ny = (e.clientY - r.top) / r.height - .5; O.tiltT = -18 + ny * 14; O.rollT = nx * -10; O.spdT = 1 + Math.abs(nx) * 2.4; });
+  owrap.addEventListener("pointerleave", () => { O.tiltT = -18; O.rollT = 0; O.spdT = 1; }); }
+let last = performance.now();
+function orbitFrame(now) { requestAnimationFrame(orbitFrame); const dt = Math.min(50, now - last); last = now; if (!O.on) return;
+  O.tilt = lerp(O.tilt, O.tiltT, .06); O.roll = lerp(O.roll, O.rollT, .06); O.spd = lerp(O.spd, O.spdT, .05); if (!reduce) O.yaw += dt * .006 * O.spd;
+  const R = radius(), n = cards.length;
+  cards.forEach((c, i) => { const a = (i / n) * 360 + O.yaw, rad = a * Math.PI / 180;
+    // 카드는 궤도 위에 놓이고 항상 화면 쪽을 본다. 뒤쪽 카드는 흐리고 작게
+    const z = Math.cos(rad), depth = (z + 1) / 2;
+    c.style.transform = `rotateZ(${O.roll}deg) rotateX(${O.tilt}deg) rotateY(${a}deg) translateZ(${R}px) rotateY(${-a}deg) rotateX(${-O.tilt}deg) scale(${.82 + depth * .22})`;
+    c.style.opacity = (.35 + depth * .65).toFixed(3); c.style.zIndex = z > 0 ? 10 : 1; c.style.filter = depth < .45 ? `blur(${((.45 - depth) * 4).toFixed(2)}px)` : ""; }); }
+requestAnimationFrame(orbitFrame);
+
+// ── 마우스 화면 전용: 커서, 히어로 패럴랙스, 목업 기울기, 마그네틱 버튼 ──
+if (fine) {
+  const cur = $("#cur"), dot = $("#curDot"), m = { x: -100, y: -100 }, c = { x: -100, y: -100 };
+  addEventListener("pointermove", (e) => { m.x = e.clientX; m.y = e.clientY; dot.style.transform = `translate(${m.x}px,${m.y}px)`; cur.classList.add("live"); dot.classList.add("live"); }, { passive: true });
+  (function cl() { c.x = lerp(c.x, m.x, .2); c.y = lerp(c.y, m.y, .2); cur.style.transform = `translate(${c.x}px,${c.y}px)`; requestAnimationFrame(cl); })();
+  $$("a, button, summary, input, .stage, .sphere-box").forEach((el) => { el.addEventListener("pointerenter", () => cur.classList.add("big")); el.addEventListener("pointerleave", () => cur.classList.remove("big")); });
+  $$(".hero, .final, footer").forEach((el) => { el.addEventListener("pointerenter", () => { cur.classList.add("dark"); dot.classList.add("dark"); }); el.addEventListener("pointerleave", () => { cur.classList.remove("dark"); dot.classList.remove("dark"); }); });
+  const [l1, l2] = $$("#h1 span");
+  hero.addEventListener("pointermove", (e) => { const r = hero.getBoundingClientRect(), nx = (e.clientX - r.left) / r.width - .5, ny = (e.clientY - r.top) / r.height - .5;
+    l1.style.transform = `translate(${nx * -16}px,${ny * -8}px)`; l2.style.transform = `translate(${nx * 20}px,${ny * 10}px)`; if (hv) hv.style.transform = `scale(1.08) translate(${nx * -12}px,${ny * -8}px)`; });
+  hero.addEventListener("pointerleave", () => { l1.style.transform = l2.style.transform = ""; if (hv) hv.style.transform = ""; });
+  $$(".stage").forEach((s) => { const u = $(".ui", s); s.addEventListener("pointermove", (e) => { const r = s.getBoundingClientRect(), nx = (e.clientX - r.left) / r.width - .5, ny = (e.clientY - r.top) / r.height - .5; u.style.transform = `rotateY(${nx * 7}deg) rotateX(${ny * -7}deg) translateZ(16px)`; });
+    s.addEventListener("pointerleave", () => (u.style.transform = "")); });
+  $$(".mag").forEach((b) => { b.addEventListener("pointermove", (e) => { const r = b.getBoundingClientRect(); b.style.transform = `translate(${(e.clientX - r.left - r.width / 2) * .2}px,${(e.clientY - r.top - r.height / 2) * .28}px)`; });
+    b.addEventListener("pointerleave", () => (b.style.transform = "")); });
+  if (window.Lenis) { const lenis = new Lenis({ duration: 1.05 }); const raf = (t) => { lenis.raf(t); requestAnimationFrame(raf); }; requestAnimationFrame(raf);
+    $$('a[href^="#"]').forEach((a) => a.addEventListener("click", (e) => { const t = document.querySelector(a.getAttribute("href")); if (t) { e.preventDefault(); lenis.scrollTo(t, { offset: -72 }); } })); }
+}
+
+// ── 히어로 연결망: 노드가 떠다니며 가까운 것끼리 선으로 이어지고, 커서 근처 연결이 밝아지며 신호가 흐른다 ──
+(function net() {
+  const cv = $("#net"), ctx = cv.getContext("2d"); let W, H, dpr, nodes = [], sig = [], on = true; const mouse = { x: -999, y: -999, a: 0 };
+  const size = () => { dpr = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const N = Math.round(Math.min(110, W * H / 15000)); nodes = Array.from({ length: N }, () => ({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .22, vy: (Math.random() - .5) * .22, r: 1 + Math.random() * 1.6 })); };
+  size(); addEventListener("resize", size);
+  hero.addEventListener("pointermove", (e) => { const r = cv.getBoundingClientRect(); mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top; });
+  hero.addEventListener("pointerleave", () => { mouse.x = mouse.y = -999; });
+  new IntersectionObserver(([e]) => (on = e.isIntersecting)).observe(hero);
+  const D = 150, MR = 210;
+  function frame() { requestAnimationFrame(frame); if (!on) return;
+    ctx.clearRect(0, 0, W, H);
+    for (const n of nodes) { if (!reduce) { n.x += n.vx; n.y += n.vy; if (n.x < 0 || n.x > W) n.vx *= -1; if (n.y < 0 || n.y > H) n.vy *= -1; }
+      const dx = mouse.x - n.x, dy = mouse.y - n.y, d = Math.hypot(dx, dy); n.near = d < MR ? 1 - d / MR : 0; if (n.near && !reduce) { n.x += dx * .004 * n.near; n.y += dy * .004 * n.near; } }
+    for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) { const a = nodes[i], b = nodes[j], d = Math.hypot(a.x - b.x, a.y - b.y); if (d > D) continue;
+      const k = 1 - d / D, hot = Math.max(a.near, b.near); ctx.strokeStyle = hot > .05 ? `rgba(157,176,255,${(k * (.18 + hot * .7)).toFixed(3)})` : `rgba(243,244,247,${(k * .12).toFixed(3)})`; ctx.lineWidth = hot > .05 ? 1.1 : .8;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      if (hot > .3 && !reduce && Math.random() < .004) sig.push({ a, b, t: 0 }); }
+    for (const n of nodes) { ctx.fillStyle = n.near > .05 ? `rgba(180,195,255,${.5 + n.near * .5})` : "rgba(243,244,247,.45)"; ctx.beginPath(); ctx.arc(n.x, n.y, n.r + n.near * 1.6, 0, 6.283); ctx.fill(); }
+    sig = sig.filter((s) => (s.t += .025) < 1); for (const s of sig) { const x = lerp(s.a.x, s.b.x, s.t), y = lerp(s.a.y, s.b.y, s.t); const g = ctx.createRadialGradient(x, y, 0, x, y, 8); g.addColorStop(0, "rgba(200,212,255,.95)"); g.addColorStop(1, "rgba(200,212,255,0)"); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 8, 0, 6.283); ctx.fill(); }
+  }
+  frame();
+})();
+
+// ── 마지막 버튼 주위 빛 입자 ──
+(function sparks() {
+  const cv = $("#sparks"); if (!cv) return; const ctx = cv.getContext("2d"), btn = cv.parentElement; let W, H, ps = [], hot = 0, on = false;
+  const size = () => { const d = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); };
+  size(); addEventListener("resize", size);
+  btn.addEventListener("pointerenter", () => (hot = 1)); btn.addEventListener("pointerleave", () => (hot = 0));
+  new IntersectionObserver(([e]) => (on = e.isIntersecting)).observe(btn);
+  function frame() { requestAnimationFrame(frame); if (!on || reduce) return; ctx.clearRect(0, 0, W, H);
+    const bw = W - 120, bh = H - 120, rate = hot ? 3 : .6;
+    for (let k = 0; k < rate; k++) if (Math.random() < rate - k) { const side = Math.random(); const x = 60 + Math.random() * bw, y = side < .5 ? 60 : 60 + bh; ps.push({ x, y, vx: (Math.random() - .5) * .6, vy: (side < .5 ? -1 : 1) * (.3 + Math.random() * .7), life: 1 }); }
+    ps = ps.filter((p) => (p.life -= .018) > 0);
+    for (const p of ps) { p.x += p.vx; p.y += p.vy; ctx.fillStyle = `rgba(170,188,255,${(p.life * (hot ? .9 : .55)).toFixed(3)})`; ctx.beginPath(); ctx.arc(p.x, p.y, 1.4, 0, 6.283); ctx.fill(); }
+    const g = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, W / 2); g.addColorStop(0, `rgba(61,90,254,${hot ? .35 : .18})`); g.addColorStop(1, "rgba(61,90,254,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); }
+  frame();
+})();
+})();
+</script>
+
+<script type="module">
+// ── 실사 3D 공통: 사진 카드(곡면 셰이더) / 히어로 사진 링 / 스크롤 사진 터널 ──
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js";
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches, mobile = innerWidth < 820;
+const PHOTOS = ["ui_0","c_115655","ui_1","c_2105927","ui_2","c_36706460","ui_3","c_17323801","ui_4","c_34804001","ui_5","c_40342988","ui_6","c_20501862","ui_7","c_37730211","c_30535623","c_39808538","c_17489157","c_14851415","c_12969403","c_1181320","c_8204363","c_16323580"];
+const STAGES = ["ui_0","ui_1","ui_2","ui_3","ui_4","ui_7","ui_5","ui_6"];
+const loader = new THREE.TextureLoader(), cache = {};
+const tex = (id) => cache[id] || (cache[id] = (() => { const t = loader.load(`media/${id}.jpg`); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; })());
+// 스크롤 속도(관성): 링 회전 가속과 사진 휘어짐에 쓴다
+const SV = { v: 0, last: scrollY };
+(function sv() { const d = scrollY - SV.last; SV.last = scrollY; SV.v += (d - SV.v) * .12; window.__sv = SV.v; requestAnimationFrame(sv); })();
+const cardMat = (id) => new THREE.ShaderMaterial({ transparent: true, side: THREE.DoubleSide, uniforms: { map: { value: tex(id) }, uBend: { value: 0 }, uDim: { value: 1 }, uA: { value: 1 }, uR: { value: .06 } }, depthWrite: false,
+  vertexShader: `uniform float uBend; varying vec2 vUv; void main(){ vUv = uv; vec3 p = position; p.z += uBend * (p.y*p.y*.9 + p.x*p.x*.25) + uBend * .25 * sin(p.x*3.); gl_Position = projectionMatrix*modelViewMatrix*vec4(p,1.); }`,
+  fragmentShader: `uniform sampler2D map; uniform float uDim, uA, uR; varying vec2 vUv;
+    float rbox(vec2 p, vec2 b, float r){ vec2 q = abs(p)-b+r; return length(max(q,0.)) + min(max(q.x,q.y),0.) - r; }
+    void main(){ vec2 c = vUv - .5; float d = rbox(c*vec2(.75,1.), vec2(.375,.5), uR); if (d > 0.) discard; vec4 t = texture2D(map, vUv); float l = dot(t.rgb, vec3(.299,.587,.114)); t.rgb = mix(vec3(l), t.rgb, .78) * vec3(.97,.99,1.04); gl_FragColor = vec4(t.rgb*uDim, uA); }` });
+const cardGeo = new THREE.PlaneGeometry(.75, 1, 12, 16);
+function mount(canvas, opts = {}) { let r; try { r = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true }); } catch (e) { canvas.remove(); return null; } r.setPixelRatio(Math.min(devicePixelRatio || 1, 2)); return r; }
+
+// ① 히어로 사진 링: 큰 실사 카드가 원통형 궤도를 천천히 돈다. 마우스로 기울고, 스크롤하면 빨라졌다 관성으로 돌아온다
+(function ring() {
+  const cv = document.getElementById("ring"), host = document.getElementById("hero"), r = mount(cv); if (!r) return;
+  const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(32, 1, .1, 60), g = new THREE.Group(); scene.add(g);
+  const N = mobile ? 8 : 12, R = 3.4, cards = [];
+  for (let i = 0; i < N; i++) { const m = new THREE.Mesh(cardGeo, cardMat(PHOTOS[i])); const a = (i / N) * Math.PI * 2; m.position.set(Math.sin(a) * R, 0, Math.cos(a) * R); m.rotation.y = a; m.scale.setScalar(mobile ? .95 : 1.05); g.add(m); cards.push(m); }
+  const st = { yaw: 0, tilt: .16, tiltT: .16, roll: 0, rollT: 0, on: true };
+  const size = () => { const w = host.clientWidth, h = host.clientHeight; r.setSize(w, h, false); cam.aspect = w / h; cam.position.set(0, mobile ? .9 : 1.7, mobile ? 9.6 : 8.8); cam.lookAt(0, mobile ? -.9 : -.35, 0); cam.updateProjectionMatrix(); };
+  size(); addEventListener("resize", size);
+  host.addEventListener("pointermove", (e) => { const b = host.getBoundingClientRect(), nx = (e.clientX - b.left) / b.width - .5, ny = (e.clientY - b.top) / b.height - .5; st.tiltT = .16 + ny * .22; st.rollT = nx * -.12; });
+  host.addEventListener("pointerleave", () => { st.tiltT = .16; st.rollT = 0; });
+  new IntersectionObserver(([e]) => (st.on = e.isIntersecting)).observe(host);
+  const tmp = new THREE.Vector3();
+  (function frame() { requestAnimationFrame(frame); if (!st.on) return; const sv = window.__sv || 0;
+    st.tilt += (st.tiltT - st.tilt) * .06; st.roll += (st.rollT - st.roll) * .06; if (!reduce) st.yaw += .0022 + Math.min(.05, Math.abs(sv) * .0009);
+    g.rotation.set(st.tilt, st.yaw, st.roll); g.position.y = mobile ? -1.5 : -1.2;
+    cards.forEach((m) => { m.getWorldPosition(tmp); const front = (tmp.z + R) / (2 * R); m.material.uniforms.uDim.value = .22 + front * front * .78; m.material.uniforms.uBend.value = Math.max(-.25, Math.min(.25, sv * .006)); m.renderOrder = Math.round(front * 100); });
+    r.render(scene, cam); })();
+})();
+
+// ② 스크롤 사진 터널: 스크롤하면 카메라가 사진들 사이로 앞으로 나아간다
+(function tunnel() {
+  const cv = document.getElementById("tunnel"), sec = document.getElementById("moments"), r = mount(cv); if (!r) return;
+  const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(50, 1, .1, 80); scene.fog = new THREE.Fog(0x0b0d12, 6, 26);
+  const N = mobile ? 14 : 22, list = [], GAP = 1.6, PH = ["c_36706460","c_2105927","c_17323801","c_40342988","c_20501862","c_37730211","c_30535623"]; let si = 0, pi = 0;
+  for (let i = 0; i < N; i++) { const id = i % 3 === 2 ? PH[pi++ % PH.length] : STAGES[si++ % STAGES.length]; const m = new THREE.Mesh(cardGeo, cardMat(id)); const side = i % 2 ? 1 : -1, lane = (i % 4 < 2 ? 1 : 1.5);
+    m.position.set(side * (mobile ? .55 : 1.35) * lane, ((i * 37) % 5 - 2) * .32, -i * GAP); m.rotation.y = -side * .38; m.scale.setScalar(mobile ? 1.1 : 1.45); scene.add(m); list.push(m); }
+  r.setClearColor(0x000000, 0);
+  const size = () => { const w = cv.clientWidth, h = cv.clientHeight; r.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); };
+  size(); addEventListener("resize", size);
+  const ptr = { x: 0, y: 0, sx: 0, sy: 0 }; cv.parentElement.addEventListener("pointermove", (e) => { ptr.x = e.clientX / innerWidth - .5; ptr.y = e.clientY / innerHeight - .5; });
+  let on = false, z = 4.6; new IntersectionObserver(([e]) => (on = e.isIntersecting)).observe(sec);
+  const bar = document.getElementById("tbar");
+  (function frame() { requestAnimationFrame(frame); if (!on) return;
+    const b = sec.getBoundingClientRect(), p = Math.min(1, Math.max(0, -b.top / (b.height - innerHeight)));
+    const target = 4.6 - p * (N * GAP + 2.6); z += (target - z) * (reduce ? 1 : .08); bar.style.width = (p * 100).toFixed(1) + "%";
+    ptr.sx += (ptr.x - ptr.sx) * .06; ptr.sy += (ptr.y - ptr.sy) * .06;
+    cam.position.set(ptr.sx * .8, -ptr.sy * .5, z); cam.lookAt(ptr.sx * .3, -ptr.sy * .2, z - 5);
+    const sv = window.__sv || 0; list.forEach((m) => { m.material.uniforms.uBend.value = Math.max(-.3, Math.min(.3, sv * .008)); const dz = m.position.z - z, U = m.material.uniforms; m.visible = dz < -.4; U.uDim.value = Math.max(.35, Math.min(1, .5 + (6 + dz) * .1)); U.uA.value = Math.max(0, Math.min(1, (dz + 24) / 12)); m.renderOrder = Math.round(100 + dz); });
+    r.render(scene, cam); })();
+})();
+
+// ③ 기능 사진: 마우스를 올리면 3D로 기울고 빛 반사가 따라온다. 스크롤 속도에 따라 살짝 휜다
+(function photos() {
+  const fine = matchMedia("(hover: hover) and (pointer: fine)").matches && !reduce;
+  const ph = [...document.querySelectorAll(".stage .photo")];
+  if (fine) ph.forEach((p) => { const s = p.parentElement; s.addEventListener("pointermove", (e) => { const b = p.getBoundingClientRect(), nx = (e.clientX - b.left) / b.width, ny = (e.clientY - b.top) / b.height; p.style.setProperty("--gx", nx * 100 + "%"); p.style.setProperty("--gy", ny * 100 + "%"); p.style.transform = `rotateY(${(nx - .5) * -6}deg) rotateX(${(ny - .5) * 6}deg)`; });
+    s.addEventListener("pointerleave", () => (p.style.transform = "")); });
+  if (!reduce) (function sk() { const v = Math.max(-6, Math.min(6, (window.__sv || 0) * .12)); ph.forEach((p) => { if (!p.matches(":hover")) p.querySelector("img").style.transform = `skewY(${(v * .25).toFixed(2)}deg) scale(1.03)`; }); requestAnimationFrame(sk); })();
+})();
+</script>
+
+<script type="module">
+// ── 연결망 구: 작업 사진 타일이 구 위에 놓이고 빛의 선으로 이어진다. 드래그하면 관성으로 돌고, 커서 근처 연결선이 밝아지며 신호가 흐른다 ──
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js";
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const box = document.getElementById("sphereBox"), canvas = document.getElementById("sphere");
+let renderer; try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true }); } catch (e) { canvas.remove(); }
+if (renderer) {
+  const mobile = innerWidth < 820;
+  const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(36, 1, .1, 50); cam.position.set(0, 0, 6.2);
+  const world = new THREE.Group(); scene.add(world);
+  const files = ["c_115655","ui_1","c_2105927","ui_2","c_36706460","ui_3","c_17323801","ui_4","c_34804001","ui_5","c_40342988","ui_6","c_20501862","ui_7","c_37730211","c_30535623","c_39808538","c_17489157","c_14851415","c_12969403","c_1181320","c_8204363","c_16323580","c_25461703","c_7988748","c_36747234","c_1181675"];
+  const loader = new THREE.TextureLoader(), tex = files.map((f) => { const t = loader.load(`media/${f}.jpg`); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; });
+  // 피보나치 구 위에 타일 배치
+  const N = mobile ? 34 : 64, R = 1.75, pts = [], tiles = [];
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < N; i++) { const y = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - y * y), th = golden * i; pts.push(new THREE.Vector3(Math.cos(th) * r * R, y * R, Math.sin(th) * r * R)); }
+  const geo = new THREE.PlaneGeometry(.42, .56);
+  pts.forEach((p, i) => { const accent = i % 7 === 3;
+    const m = new THREE.Mesh(geo, accent ? new THREE.MeshBasicMaterial({ color: 0x3d5afe, transparent: true, opacity: .9 }) : new THREE.MeshBasicMaterial({ map: tex[i % tex.length], transparent: true }));
+    if (accent) m.scale.setScalar(.36);
+    m.position.copy(p); m.lookAt(p.clone().multiplyScalar(2)); world.add(m); tiles.push(m); });
+  // 가까운 타일끼리 선으로 잇기
+  const edges = [];
+  for (let i = 0; i < N; i++) { const d = pts.map((q, j) => [q.distanceTo(pts[i]), j]).filter(([, j]) => j !== i).sort((a, b) => a[0] - b[0]).slice(0, 3); d.forEach(([, j]) => { if (i < j || !edges.some((e) => e[0] === j && e[1] === i)) edges.push([i, j]); }); }
+  const lp = new Float32Array(edges.length * 6); edges.forEach(([a, b], k) => { lp.set([pts[a].x, pts[a].y, pts[a].z, pts[b].x, pts[b].y, pts[b].z], k * 6); });
+  const lg = new THREE.BufferGeometry(); lg.setAttribute("position", new THREE.BufferAttribute(lp, 3));
+  const lc = new Float32Array(edges.length * 6).fill(.55); lg.setAttribute("color", new THREE.BufferAttribute(lc, 3));
+  const lines = new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: .7 })); world.add(lines);
+  // 선을 따라 흐르는 신호
+  const SIG = mobile ? 14 : 28, sg = new THREE.BufferGeometry(), sp = new Float32Array(SIG * 3); sg.setAttribute("position", new THREE.BufferAttribute(sp, 3));
+  const sigs = Array.from({ length: SIG }, () => ({ e: Math.floor(Math.random() * edges.length), t: Math.random(), v: .006 + Math.random() * .01 }));
+  world.add(new THREE.Points(sg, new THREE.PointsMaterial({ color: 0x3d5afe, size: .07, transparent: true, opacity: .95 })));
+  // 크기
+  const size = () => { const w = box.clientWidth, h = box.clientHeight; renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2)); renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); };
+  size(); addEventListener("resize", size);
+  // 회전: 드래그는 관성, 마우스 위치는 은은한 기울기
+  const rot = { x: .2, y: 0, vx: 0, vy: .0025 }, drag = { on: false, x: 0, y: 0 }, hover = new THREE.Vector2(9, 9), ray = new THREE.Raycaster(); let on = false;
+  box.addEventListener("pointerdown", (e) => { drag.on = true; drag.x = e.clientX; drag.y = e.clientY; box.setPointerCapture(e.pointerId); });
+  box.addEventListener("pointermove", (e) => { const r = box.getBoundingClientRect(); hover.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    if (drag.on) { rot.vy = (e.clientX - drag.x) * .0009; rot.vx = (e.clientY - drag.y) * .0009; drag.x = e.clientX; drag.y = e.clientY; } });
+  const end = () => (drag.on = false); box.addEventListener("pointerup", end); box.addEventListener("pointercancel", end); box.addEventListener("pointerleave", () => hover.set(9, 9));
+  new IntersectionObserver(([e]) => (on = e.isIntersecting)).observe(box);
+  const tmp = new THREE.Vector3(), near = new Float32Array(N);
+  function frame() { requestAnimationFrame(frame); if (!on) return;
+    if (!drag.on) { const steer = hover.x < 5 ? hover.x * .006 : 0, tilt = hover.x < 5 ? -hover.y * .5 : .2; rot.vy += ((reduce ? 0 : .0022 + steer) - rot.vy) * .03; rot.vx += ((tilt - rot.x) * .02 - rot.vx) * .1; }
+    rot.y += rot.vy; rot.x = Math.max(-.9, Math.min(.9, rot.x + rot.vx)); world.rotation.set(rot.x, rot.y, 0);
+    // 커서 근처 타일 찾기 → 연결선 밝기
+    ray.setFromCamera(hover, cam);
+    for (let i = 0; i < N; i++) { tmp.copy(pts[i]).applyEuler(world.rotation); const d = ray.ray.distanceToPoint(tmp); const front = tmp.z > 0 ? 1 : .3; near[i] = Math.max(0, 1 - d / .9) * front; tiles[i].scale.setScalar((tiles[i].material.map ? 1 : .36) * (1 + near[i] * .35)); }
+    edges.forEach(([a, b], k) => { const h = Math.max(near[a], near[b]); const r = .55 + (.24 - .55) * h, g = .58 + (.35 - .58) * h, bl = .64 + (1 - .64) * h; lc.set([r, g, bl, r, g, bl], k * 6); });
+    lg.attributes.color.needsUpdate = true;
+    sigs.forEach((s, k) => { s.t += reduce ? 0 : s.v * (1 + 3 * Math.max(near[edges[s.e][0]], near[edges[s.e][1]])); if (s.t > 1) { s.t = 0; s.e = Math.floor(Math.random() * edges.length); } const [a, b] = edges[s.e]; tmp.lerpVectors(pts[a], pts[b], s.t); sp.set([tmp.x, tmp.y, tmp.z], k * 3); });
+    sg.attributes.position.needsUpdate = true;
+    renderer.render(scene, cam); }
+  frame();
+}
+</script>
+
+</body></html>
